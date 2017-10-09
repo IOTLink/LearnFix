@@ -17,3 +17,22 @@ http://blog.csdn.net/u010571316/article/details/41629983
 
 5、disruptor：它能够在一个线程里每秒处理6百万订单
 http://ifeve.com/disruptor/
+
+
+6:
+hmac http 授权：
+https://github.com/daemonl/go_oauth
+
+
+
+阿里：
+分布式开放消息系统(RocketMQ)的原理与实践
+
+https://github.com/fishtrip/watchman
+
+https://www.iread.one/2914349.html
+给予MQ　
+
+
+
+
