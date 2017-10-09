@@ -6,6 +6,9 @@ https://wenku.baidu.com/view/707b328ea58da0116c1749ad.html
 2、
 p2p基于局域网内的IP地址通信
 
+p2p打洞
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
+
 3、区块链
 
 4、go语言、加密学
