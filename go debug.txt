@@ -1,0 +1,30 @@
+go的调试方法：
+目前支持调试Go程序的GDB版本必须大于7.1。
+gdb/cgdb：
+传递参数-ldflags “-s”，忽略debug的打印信息
+传递-gcflags “-N -l” 参数，这样可以忽略Go内部做的一些优化，聚合变量和函数等优化，这样对于GDB调试来说非常困难，所以在编译的时候加入这两个参数避免这些优化。
+
+If you want to use gdb to inspect a core dump, you can trigger a dump on a program crash, on systems that permit it, by setting GOTRACEBACK=crash in the environment (see the runtime package documentation for more info).
+
+https://golang.org/doc/gdb
+
+go build -gcflags "-N -l" gdbfile.go
+
+
+info goroutines 查看运行的协程
+
+To help GDB find the Go runtime sources and the accompanying support script, pass your $GOROOT with the '-d' flag:
+
+$ gdb regexp.test -d $GOROOT
+
+
+(gdb) source ~/go/src/runtime/runtime-gdb.py
+Loading Go Runtime support.
+
+
+
+dlv：
+https://github.com/derekparker/delve/tree/master/Documentation/cli
+goroutines 查看运行的协程
+help获取帮助
+
