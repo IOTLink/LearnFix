@@ -1,3 +1,6 @@
+诊断dns IP地址命令：
+ dig www.baidu.com +trace
+
 
 
 P2P网络
