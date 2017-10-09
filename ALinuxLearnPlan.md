@@ -7,7 +7,8 @@ https://wenku.baidu.com/view/707b328ea58da0116c1749ad.html
 p2p基于局域网内的IP地址通信
 
 p2p打洞
-liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
+http://blog.csdn.net/u010571316/article/details/41629983
+
 
 3、区块链
 
