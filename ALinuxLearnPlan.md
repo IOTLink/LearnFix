@@ -1,9 +1,3 @@
-
-
-
-
-
-
 _ _ __ _ __ _ __ _ _
 1、
 可重复使用的并行数据结构和算法：
@@ -38,6 +32,10 @@ https://github.com/daemonl/go_oauth
 https://github.com/fishtrip/watchman
 https://www.iread.one/2914349.html
 给予MQ　
+
+
+7: kafka:
+http://www.cnblogs.com/likehua/p/3999538.html
 
 
 
