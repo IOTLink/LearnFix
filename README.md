@@ -1,6 +1,8 @@
 # LearnFix
 
 
+![image](https://github.com/IOTLink/LearnFix/tree/master/png/fabric.png)
+
 …or create a new repository on the command line
 
 echo "# LearnFix" >> README.md
