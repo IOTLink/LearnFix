@@ -473,7 +473,7 @@ liuhy@liuhy ~/work3/src $
 
 3、
 动态增加一个peer节点：
-export FABRIC_CA_CLIENT_HOME=$PWD/fabric/admin
+export FABRIC_CA_CLIENT_HOME=$PWD/fabric/admin  
 fabric-ca-client enroll -u http://admin:adminpw@47.92.106.133:7054
 fabric-ca-client register --id.name peermy --id.type peer --id.affiliation org1.department1 --id.secret peermypw
 
@@ -487,6 +487,16 @@ export CORE_PEER_TLS_ROOTCERT_FILE=$PWD/crypto/peerOrganizations/org1.example.co
 export CORE_PEER_MSPCONFIGPATH=$PWD/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 export CORE_PEER_ADDRESS=123.207.15.221:7051		
 peer channel join -b $CHANNEL_NAME.block 
+
+
+说明：
+export FABRIC_CA_CLIENT_HOME=$PWD/dir
+此环境变量会把生成的配置文件、msp证书放到dir目录下面
+
+4、
+export FABRIC_CA_HOME=$PWD/dir  初始化时，放置的文件位置
+./fabric-ca-server init -b admin:adminpw   初始化参数 管理员名和密码
+./fabric-ca-server start -b admin:adminw -d  启动服务
 
 
 
