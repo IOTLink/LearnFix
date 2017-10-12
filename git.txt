@@ -1,0 +1,2 @@
+切换分支  远程master分子切换到v1.0.0分支
+git checkout -b v1.0.0 origin/master

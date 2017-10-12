@@ -493,7 +493,11 @@ peer channel join -b $CHANNEL_NAME.block
 export FABRIC_CA_CLIENT_HOME=$PWD/dir
 此环境变量会把生成的配置文件、msp证书放到dir目录下面
 
-4、
+4、 fabric-ca-server
+代码编译：
+ go build -o fabric-ca-server   main.go  start.go  init.go  config.go 
+
+
 export FABRIC_CA_HOME=$PWD/dir  初始化时，放置的文件位置
 ./fabric-ca-server init -b admin:adminpw   初始化参数 管理员名和密码
 ./fabric-ca-server start -b admin:adminw -d  启动服务
