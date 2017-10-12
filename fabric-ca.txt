@@ -499,6 +499,17 @@ export FABRIC_CA_HOME=$PWD/dir  初始化时，放置的文件位置
 ./fabric-ca-server start -b admin:adminw -d  启动服务
 
 
+商业环境配置参数：证书和私钥：
+其中CA1_PRIVATE_KEY被替换
+cd crypto-config/peerOrganizations/org1.example.com/ca/
+PRIV_KEY=$(ls *_sk)
+
+fabric-ca-server start 
+--ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem 
+--ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+ -b admin:adminpw -d'
+
+
 
 
 
