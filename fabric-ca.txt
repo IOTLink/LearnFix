@@ -443,6 +443,7 @@ Generate client certificate/key pair
 
 
 +++++++++++++++++++++++++++++++++++++++++++++
+1、
 fabric-ca 客户端源代码编译：
 
 liuhy@liuhy ~/work3/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client $ ./fabric-ca-client 
@@ -457,7 +458,7 @@ go build -o fabric-ca-client  main.go config.go  command.go  enroll.go getcacert
 
 由此看见代码是一插件的介入，部分插件没有并不影响，但是功能缺失
 ————————————————————————————————————————————————————————————————————————————
-github安装：
+2、github安装：
 
 fabric-ca 直接安装客户端：
 go get github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
@@ -469,6 +470,23 @@ drwxrwxr-x 5 liuhy liuhy     4096 Sep  1 14:47 ../
 -rwxrwxr-x 1 liuhy liuhy 17862808 Oct 12 11:45 fabric-ca-client*
 liuhy@liuhy ~/work3/src $ 
 
+
+3、
+动态增加一个peer节点：
+export FABRIC_CA_CLIENT_HOME=$PWD/fabric/admin
+fabric-ca-client enroll -u http://admin:adminpw@47.92.106.133:7054
+fabric-ca-client register --id.name peermy --id.type peer --id.affiliation org1.department1 --id.secret peermypw
+
+export FABRIC_CA_CLIENT_HOME=$PWD/fabric/peer
+fabric-ca-client enroll -u http://peermy:peermypw@47.92.106.133:7054 -M $FABRIC_CA_CLIENT_HOME/msp
+
+
+CHANNEL_NAME="mychannel"
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=$PWD/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=$PWD/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=123.207.15.221:7051		
+peer channel join -b $CHANNEL_NAME.block 
 
 
 
