@@ -22,6 +22,16 @@ $ gdb regexp.test -d $GOROOT
 Loading Go Runtime support.
 
 
+删除调试符号：go build -ldflags “-s -w”
+
+-s: 去掉符号信息。
+-w: 去掉DWARF调试信息。
+关闭内联优化：go build -gcflags “-N -l”
+
+http://blog.studygolang.com/2012/12/gdb%E8%B0%83%E8%AF%95go%E7%A8%8B%E5%BA%8F/
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 dlv：
 https://github.com/derekparker/delve/tree/master/Documentation/cli
@@ -30,4 +40,6 @@ help获取帮助
 
 
 
+dlv
+调试：
 

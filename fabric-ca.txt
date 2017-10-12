@@ -442,6 +442,35 @@ Generate client certificate/key pair
 
 
 
++++++++++++++++++++++++++++++++++++++++++++++
+fabric-ca 客户端源代码编译：
+
+liuhy@liuhy ~/work3/src/github.com/hyperledger/fabric-ca/cmd/fabric-ca-client $ ./fabric-ca-client 
+运行提示：
+Hyperledger Fabric Certificate Authority Client
+
+因为编译是有部分文件没有编译：
+go build -o fabric-ca-client  main.go config.go  command.go
+
+重新编译：
+go build -o fabric-ca-client  main.go config.go  command.go  enroll.go getcacert.go  reenroll.go  register.go  revoke.go 
+
+由此看见代码是一插件的介入，部分插件没有并不影响，但是功能缺失
+————————————————————————————————————————————————————————————————————————————
+github安装：
+
+fabric-ca 直接安装客户端：
+go get github.com/hyperledger/fabric-ca/cmd/fabric-ca-client
+
+liuhy@liuhy ~/work3/src $ ll ../bin/
+total 17456
+drwxrwxr-x 2 liuhy liuhy     4096 Oct 12 11:45 ./
+drwxrwxr-x 5 liuhy liuhy     4096 Sep  1 14:47 ../
+-rwxrwxr-x 1 liuhy liuhy 17862808 Oct 12 11:45 fabric-ca-client*
+liuhy@liuhy ~/work3/src $ 
+
+
+
 
 
 
