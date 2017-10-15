@@ -1,0 +1,235 @@
+1：
+运行下面命令安装docker，：运行下面命令安装docker，
+：http://www.linuxidc.com/Linux/2017-02/141147.htm
+ $ curl -k -sSl https://get.docker.com | sudo sh
+
+2： 安装docker-compose
+http://blog.csdn.net/gsying1474/article/details/52988784
+
+# curl -L https://github.com/docker/compose/releases/download/1.8.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose 
+# chmod +x /usr/local/bin/docker-compose
+
+
+
+3：vi /etc/systemd/system/multi-user.target.wants/docker.service +13  
+
+修改改成：
+/usr/bin/dockerd -H unix:///var/run/docker.sock --raw-logs
+ExecStart=/usr/bin/dockerd  -H unix:///var/run/docker.sock --raw-logs
+
+ vi /etc/default/docker
+DOCKER_OPTS="-H unix:///var/run/docker.sock"
+
+重启：
+service docker restart
+
+
+4：
+
+add:
+sudo usermod -aG docker "liuhy"
+newgrp docker
+
+
+5： 测试：
+liuhy@liuhy ~ $ docker poll run hello-world
+
+
+
+
+
+
+//////////////////////////////////////////////
+
+
+
+删除所有的docker镜像：
+docker rmi $(docker images -q)
+或者强制删除：
+docker rmi -f $(docker images -q)
+
+
+
+DOCKER_TLS_VERIFY=0 meaning verify, the following should disable it, STL
+ --tlsverify=false 
+ export DOCKER_TLS_VERIFY=0
+ unset DOCKER_TLS_VERIFY
+unset DOCKER_CERT_PATH
+ export DOCKER_TLS=no
+  
+docker-containerd --debug   -l unix:///var/run/docker.sock  --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --shim docker-containerd-shim --runtime docker-runc
+
+
+root@iZ8vb4poq27pwlfquqgo1rZ:~/docker.1.13# ps -ef |grep docker 
+root     26700     1  0 13:18 ?        00:00:02 /usr/bin/dockerd --raw-logs
+root     26711 26700  0 13:18 ?        00:00:01 docker-containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --shim docker-containerd-shim --runtime docker-runc
+root     27501 26711  0 13:20 ?        00:00:00 docker-containerd-shim 9878dab5a6b79976d0c7dc3606f11d56c4806aeb679a797a93596275dd297544 /var/run/docker/libcontainerd/9878dab5a6b79976d0c7dc3606f11d56c4806aeb679a797a93596275dd297544 docker-runc
+root     28018 26478  0 13:52 pts/6    00:00:00 vi /etc/init.d/docker
+root     28047 24800  0 13:54 pts/4    00:00:00 grep --color=auto docker
+root@iZ8vb4poq27pwlfquqgo1rZ:~/docker.1.13# 
+
+speed 
+
+
+./docker -H unix:///var/run/docker.sock    info
+
+wget https://apt.dockerproject.org/repo/pool/main/d/docker-engine/docker-engine_1.13.1-0~ubuntu-yakkety_amd64.deb
+dpkg -i  ./docker-engine_1.13.1-0-ubuntu-yakkety_amd64.deb 
+
+
+dockerd -D --tls=false
+
+
+sudo usermod -aG docker "root"
+newgrp docker
+
+
+卸载系统之前的docker
+apt-get purge docker-engine
+apt-get autoremove --purge docker-engine
+rm -rf /var/lib/docker
+
+
+----
+vi /etc/init/docker.conf +46
+ 52         DOCKER_OPTS="-H unix:///var/run/docker.sock"
+docker pull hyperledger/fabric-ccenv:x86_64-1.0.0-beta
+ vi /etc/default/docker
+DOCKER_OPTS="-H unix:///var/run/docker.sock"
+
+
+脚本有执行权限：
+startca.sh
+
+直接命令启动 并绝对路径命令加参数  ，加重定向日志
+/usr/local/bin/fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem
+ --ca.keyfile /etc/hyperledger/fabric-ca-server-config/15209b469925589e07f5005d768169e2652a8e4227cd670176cc5ac10afa3e70_sk 
+ -b admin:adminpw -d > /root/ca.log &
+
+随机启动开关：并重定向日志 注销exit 0
+
+#exit 0
+/root/.ca-orderer/docker-ca/startca.sh false  >/dev/null  2>&1
+/root/.ca-orderer/docker-orderer/startorderer.sh false  >/dev/null 2>&1
+# >/dev/null  2>&1
+#exit 0
+~                  
+ /usr/bin/dockerd -H unix:///var/run/docker.sock --raw-logs
+
+ 
+测试rc.local脚本是否配置正确：
+/etc/init.d/rc.local start
+
+=================================================================================
+
+原来的：
+ExecStart=/usr/bin/dockerd -H fd://  -H unix:///var/run/docker.sock
+
+修改改成：
+/usr/bin/dockerd -H unix:///var/run/docker.sock --raw-logs
+ExecStart=/usr/bin/dockerd  -H unix:///var/run/docker.sock --raw-logs
+
+
+vi /etc/systemd/system/multi-user.target.wants/docker.service +13  
+：：：：----》 ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_OPTS  
+
+解决dockerd不加载：  -H unix:///var/run/docker.sock 文件问题
+liuhy liuhy # vi /etc/systemd/system/multi-user.target.wants/docker.service +13
+liuhy liuhy # systemctl daemon-reload
+liuhy liuhy # systemctl restart docker.service
+显示：
+liuhy@liuhy ~ $ ps -ef | grep docker
+root      27341      1  5 22:34 ?        00:00:01 /usr/bin/dockerd -H fd:// -H unix:///var/run/docker.sock
+root      27347  27341  1 22:34 ?        00:00:00 containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --shim containerd-shim --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --runtime runc
+
+
+
+ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_OPTS
+ExecStart=/usr/bin/dockerd -H fd:// -H unix:///var/run/docker.sock
+
+或者设置
+export DOCKER_OPTS="-H unix:///var/run/docker.sock"
+
+
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+systemctl restart docker.service
+systemctl status docker.service
+
+如果修改/etc/systemd/system/multi-user.target.wants/docker.service文件则需要重新加载，运行：systemctl daemon-reload
+
+如果报错：运行 journalctl -xe 查看错误信息
+
+
+
+liuhy liuhy # service docker restart
+
+
+liuhy liuhy # 
+liuhy liuhy # 
+liuhy liuhy # service docker status
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+   Active: active (running) since Thu 2017-07-27 22:16:14 CST; 5s ago
+     Docs: https://docs.docker.com
+ Main PID: 15308 (dockerd)
+    Tasks: 198
+   Memory: 67.1M
+      CPU: 2.861s
+   CGroup: /system.slice/docker.service
+
+   
+  sudo docker info
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+
+liuhy liuhy # docker info
+Containers: 40
+ Running: 7
+ Paused: 0
+ Stopped: 33
+Images: 30
+Server Version: 1.12.6
+Storage Driver: aufs
+ Root Dir: /var/lib/docker/aufs
+ Backing Filesystem: extfs
+ Dirs: 150
+ Dirperm1 Supported: true
+Logging Driver: json-file
+Cgroup Driver: cgroupfs
+Plugins:
+ Volume: local
+ Network: null bridge host overlay
+Swarm: inactive
+Runtimes: runc
+Default Runtime: runc
+Security Options: apparmor seccomp
+Kernel Version: 4.4.0-53-generic
+Operating System: Linux Mint 18.1
+OSType: linux
+Architecture: x86_64
+CPUs: 4
+Total Memory: 2.37 GiB
+Name: liuhy
+ID: EMYR:6Z2S:BEC6:BMCM:I3I6:QQVU:BWTS:KPRV:YWOL:YUF4:XLL7:ILMN
+Docker Root Dir: /var/lib/docker
+Debug Mode (client): false
+Debug Mode (server): false
+Registry: https://index.docker.io/v1/
+WARNING: No swap limit support
+Insecure Registries:
+
+ =======================================
+ ubuntu 查看系统代号：
+ liuhy@liuhy ~ $  lsb_release -a
+No LSB modules are available.
+Distributor ID:	LinuxMint
+Description:	Linux Mint 18.2 Sonya
+Release:	18.2
+Codename:	sonya
+liuhy@liuhy ~ $ 
+
+
+在线安装 docker-engine 引擎
+http://www.jianshu.com/p/2e0c9ed5433d
+
+   
