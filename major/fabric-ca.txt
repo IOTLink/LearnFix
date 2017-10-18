@@ -589,5 +589,64 @@ ue":"client,user,peer,validator,auditor"},{"name":"hf.Registrar.DelegateRoles","
 
 fabric_ca_db2=# 
 
+_____________________________________________________________________
+
+1、fabric-ca 对用户的证书请求结构签名：
+
+
+2、fabric 单服务器可以配置多个ca服务？为什么这么配置？怎么配置？
+
+
+3、 ca中的数据结构是怎样的？
+
+
+4、ca的其他配置
+ca 链接postgresql数据库，建立数据库：
+
+ca的home目录：
+/etc/hyperledger/fabric-ca-server
+文件：
+fabric-ca-server-config.yaml
+配置数据源的连接：
+db:
+  type: postgres
+  datasource: host=localhost port=5432 user=fabric_ca password=123456 dbname=fabric_ca_db2 sslmode=disable
+  tls:
+      enabled: false
+      certfiles:
+        - db-server-cert.pem
+      client:
+        certfile: db-client-cert.pem
+        keyfile: db-client-key.pem
+
+
+其中dbname是一个未建立的数据库，fabric-ca会根据其中的名字自己建立一个等于dbname的数据库
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
