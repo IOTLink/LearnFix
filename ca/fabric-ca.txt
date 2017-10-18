@@ -516,6 +516,156 @@ fabric-ca-server start
 
 
 
+postgresql数据库连接：
+
+数据库启动在前台：
+./postgres -D ../data --log_statement=all
+
+
+./psql -U fabric_ca -d fabric_ca_db2  -h 127.0.0.1 -p 5432
+
+
+#./createuser -U SYSTEM --superuser fabric_ca -h 127.0.0.1
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca_db
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca
+#./psql -U fabric_ca -d fabric_ca  -h 127.0.0.1 -p 5432 
+#\password fabric_ca 123456
+
+
+fabric_ca_db=# \l
+ fabric_ca     | fabric_ca | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ fabric_ca_db  | fabric_ca | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ fabric_ca_db2 | fabric_ca | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ postgres      | SYSTEM    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ template0     | SYSTEM    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/SYSTEM        +
+               |           |          |             |             | SYSTEM=CTc/SYSTEM
+ template1     | SYSTEM    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/SYSTEM        +
+               |           |          |             |             | SYSTEM=CTc/SYSTEM
+
+			   
+liuhy@liuhy ~/.postgres/bin $ ./psql -U fabric_ca -d fabric_ca_db2  -h 127.0.0.1 -p 5432 
+psql (9.5.5)
+Type "help" for help.
+
+fabric_ca_db2=# \d
+             List of relations
+ Schema |     Name     | Type  |   Owner   
+--------+--------------+-------+-----------
+ public | affiliations | table | fabric_ca
+ public | certificates | table | fabric_ca
+ public | users        | table | fabric_ca
+(3 rows)
+
+			   
+
+fabric_ca_db2=# select * from affiliations;
+       name       | prekey 
+------------------+--------
+ org1             | 
+ org1.department1 | org1
+ org1.department2 | org1
+ org2             | 
+ org2.department1 | org2
+(5 rows)
+
+fabric_ca_db2=# select * from certificates;
+ id | serial_number | authority_key_identifier | ca_label | status | reason | expiry | revoked_at | pem 
+----+---------------+--------------------------+----------+--------+--------+--------+------------+-----
+(0 rows)
+
+fabric_ca_db2=# select * from users;
+  id   |                                                           token                                                            |  type  | affiliation |                                   
+                                                                           attributes                                                                                                          
+     | state | max_enrollments 
+-------+----------------------------------------------------------------------------------------------------------------------------+--------+-------------+-----------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----+-------+-----------------
+ admin | \x2432612431302448393931494a4757584a3064764873326f31755347756b62482e766761536f7445513759786b484a6b386a306d764c6f78766d5071 | client |             | [{"name":"hf.Registrar.Roles","val
+ue":"client,user,peer,validator,auditor"},{"name":"hf.Registrar.DelegateRoles","value":"client,user,validator,auditor"},{"name":"hf.Revoker","value":"1"},{"name":"hf.IntermediateCA","value":"
+1"}] |     0 |              -1
+(1 row)
+
+fabric_ca_db2=# 
+
+_____________________________________________________________________
+
+1、fabric-ca 对用户的证书请求结构签名：
+
+
+2、fabric 单服务器可以配置多个ca服务？为什么这么配置？怎么配置？
+
+
+3、 ca中的数据结构是怎样的？
+
+
+4、ca的其他配置
+
+数据库pg配置：
+ca 链接postgresql数据库，建立数据库：
+
+ca的home目录：
+/etc/hyperledger/fabric-ca-server
+文件：
+fabric-ca-server-config.yaml
+配置数据源的连接：
+db:
+  type: postgres
+  datasource: host=localhost port=5432 user=fabric_ca password=123456 dbname=fabric_ca_db2 sslmode=disable
+  tls:
+      enabled: false
+      certfiles:
+        - db-server-cert.pem
+      client:
+        certfile: db-client-cert.pem
+        keyfile: db-client-key.pem
+
+
+其中dbname是一个未建立的数据库，fabric-ca会根据其中的名字自己建立一个等于dbname的数据库
+
+首先要预先启动数据库，以及建立用户fabric_ca :
+数据库启动在前台：
+./postgres -D ../data --log_statement=all
+
+
+./psql -U fabric_ca -d fabric_ca_db2  -h 127.0.0.1 -p 5432
+
+
+#./createuser -U SYSTEM --superuser fabric_ca -h 127.0.0.1
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca_db
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca
+#./psql -U fabric_ca -d fabric_ca  -h 127.0.0.1 -p 5432 
+#\password fabric_ca 123456
+
+建立pg数据3表：
+
+CREATE TABLE users (id VARCHAR(64), token bytea, type VARCHAR(64), affiliation VARCHAR(64), attributes VARCHAR(256), state INTEGER,  max_enrollments INTEGER)
+
+CREATE TABLE affiliations (name VARCHAR(64) NOT NULL UNIQUE, prekey VARCHAR(64))
+
+CREATE TABLE certificates (id VARCHAR(64), serial_number bytea NOT NULL, authority_key_identifier bytea NOT NULL, ca_label bytea, status bytea NOT NULL, reason int, expiry timestamp, revoked_at timestamp, pem bytea NOT NULL, PRIMARY KEY(serial_number, authority_key_identifier))
+
+
+ca 链接pg主要通过NewUserRegistryPostgres 函数链接的，链接之后建立数据表
+
+
+prof go资源监控配置:
+设置环境变量 FABRIC_CA_SERVER_PROFILE_PORT 设置go profiling 监听的端口，则可以启动监听资源消耗
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
