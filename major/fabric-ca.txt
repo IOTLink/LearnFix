@@ -560,6 +560,34 @@ fabric_ca_db2=# \d
 
 			   
 
+fabric_ca_db2=# select * from affiliations;
+       name       | prekey 
+------------------+--------
+ org1             | 
+ org1.department1 | org1
+ org1.department2 | org1
+ org2             | 
+ org2.department1 | org2
+(5 rows)
+
+fabric_ca_db2=# select * from certificates;
+ id | serial_number | authority_key_identifier | ca_label | status | reason | expiry | revoked_at | pem 
+----+---------------+--------------------------+----------+--------+--------+--------+------------+-----
+(0 rows)
+
+fabric_ca_db2=# select * from users;
+  id   |                                                           token                                                            |  type  | affiliation |                                   
+                                                                           attributes                                                                                                          
+     | state | max_enrollments 
+-------+----------------------------------------------------------------------------------------------------------------------------+--------+-------------+-----------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----+-------+-----------------
+ admin | \x2432612431302448393931494a4757584a3064764873326f31755347756b62482e766761536f7445513759786b484a6b386a306d764c6f78766d5071 | client |             | [{"name":"hf.Registrar.Roles","val
+ue":"client,user,peer,validator,auditor"},{"name":"hf.Registrar.DelegateRoles","value":"client,user,validator,auditor"},{"name":"hf.Revoker","value":"1"},{"name":"hf.IntermediateCA","value":"
+1"}] |     0 |              -1
+(1 row)
+
+fabric_ca_db2=# 
 
 
 
