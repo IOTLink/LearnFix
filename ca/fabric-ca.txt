@@ -601,6 +601,8 @@ _____________________________________________________________________
 
 
 4、ca的其他配置
+
+数据库pg配置：
 ca 链接postgresql数据库，建立数据库：
 
 ca的home目录：
@@ -622,17 +624,36 @@ db:
 
 其中dbname是一个未建立的数据库，fabric-ca会根据其中的名字自己建立一个等于dbname的数据库
 
+首先要预先启动数据库，以及建立用户fabric_ca :
+数据库启动在前台：
+./postgres -D ../data --log_statement=all
 
 
+./psql -U fabric_ca -d fabric_ca_db2  -h 127.0.0.1 -p 5432
 
 
+#./createuser -U SYSTEM --superuser fabric_ca -h 127.0.0.1
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca_db
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca
+#./psql -U fabric_ca -d fabric_ca  -h 127.0.0.1 -p 5432 
+#\password fabric_ca 123456
+
+建立pg数据3表：
+
+CREATE TABLE users (id VARCHAR(64), token bytea, type VARCHAR(64), affiliation VARCHAR(64), attributes VARCHAR(256), state INTEGER,  max_enrollments INTEGER)
+
+CREATE TABLE affiliations (name VARCHAR(64) NOT NULL UNIQUE, prekey VARCHAR(64))
+
+CREATE TABLE certificates (id VARCHAR(64), serial_number bytea NOT NULL, authority_key_identifier bytea NOT NULL, ca_label bytea, status bytea NOT NULL, reason int, expiry timestamp, revoked_at timestamp, pem bytea NOT NULL, PRIMARY KEY(serial_number, authority_key_identifier))
 
 
+ca 链接pg主要通过NewUserRegistryPostgres 函数链接的，链接之后建立数据表
 
 
-
-
-
+prof go资源监控配置:
+设置环境变量 FABRIC_CA_SERVER_PROFILE_PORT 设置go profiling 监听的端口，则可以启动监听资源消耗
 
 
 
