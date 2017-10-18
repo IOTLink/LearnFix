@@ -1,0 +1,2 @@
+清理缓存区：
+git rm -r --cached .

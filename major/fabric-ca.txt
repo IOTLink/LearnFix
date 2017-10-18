@@ -516,7 +516,49 @@ fabric-ca-server start
 
 
 
+postgresql数据库连接：
 
+数据库启动在前台：
+./postgres -D ../data --log_statement=all
+
+
+./psql -U fabric_ca -d fabric_ca_db2  -h 127.0.0.1 -p 5432
+
+
+#./createuser -U SYSTEM --superuser fabric_ca -h 127.0.0.1
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca_db
+
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca
+#./psql -U fabric_ca -d fabric_ca  -h 127.0.0.1 -p 5432 
+#\password fabric_ca 123456
+
+
+fabric_ca_db=# \l
+ fabric_ca     | fabric_ca | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ fabric_ca_db  | fabric_ca | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ fabric_ca_db2 | fabric_ca | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ postgres      | SYSTEM    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ template0     | SYSTEM    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/SYSTEM        +
+               |           |          |             |             | SYSTEM=CTc/SYSTEM
+ template1     | SYSTEM    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/SYSTEM        +
+               |           |          |             |             | SYSTEM=CTc/SYSTEM
+
+			   
+liuhy@liuhy ~/.postgres/bin $ ./psql -U fabric_ca -d fabric_ca_db2  -h 127.0.0.1 -p 5432 
+psql (9.5.5)
+Type "help" for help.
+
+fabric_ca_db2=# \d
+             List of relations
+ Schema |     Name     | Type  |   Owner   
+--------+--------------+-------+-----------
+ public | affiliations | table | fabric_ca
+ public | certificates | table | fabric_ca
+ public | users        | table | fabric_ca
+(3 rows)
+
+			   
 
 
 
