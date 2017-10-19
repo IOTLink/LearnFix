@@ -27,3 +27,25 @@ remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
 To github.com:IOTLink/LearnFix.git
  * [new tag]         v1.0.0 -> v1.0.0
 
+<<<<<<< HEAD
+=======
+
+本地切换分支名称：
+http://blog.chinaunix.net/uid-20401941-id-3343826.html
+
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (dev)
+$ git branch
+* dev
+  master
+
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (dev)
+$ git checkout master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
+$ git branch
+  dev
+* master
+>>>>>>> master
