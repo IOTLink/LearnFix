@@ -591,13 +591,261 @@ fabric_ca_db2=#
 
 _____________________________________________________________________
 
+
+0： fabric-ca-client 客户端的使用:
+注册认证管理员:
+我们首先需要以管理员身份使用CA Client连接到CA Server，并生成相应的文件。
+export FABRIC_CA_CLIENT_HOME=$HOME/ca
+fabric-ca-client enroll -u http://admin:adminpw@localhost:7054
+这个时候我们可以去$HOME/ca目录，看到CA Client创建了一个fabric-ca-client-config.yaml文件和一个msp文件夹。config可以去修改一些组织信息之类的。
+
+注册新用户:
+接下来我们想新建一个叫devin的用户，那么需要先执行这个命令：
+fabric-ca-client register --id.name devin --id.type user --id.affiliation org1.department1 --id.attrs 'hf.Revoker=true,foo=bar'
+系统会返回一个该用户的密码：Password: GOuMzkcGgGzq
+
+用户生成msp的私钥和证书:
+再次使用enroll命令，给devin这个用户生成msp的私钥和证书：
+fabric-ca-client enroll -u http://devin:GOuMzkcGgGzq@localhost:7054 -M $FABRIC_CA_CLIENT_HOME/devinmsp
+
+
+
+
+
 1、fabric-ca 对用户的证书请求结构签名：
+向ca register：
+ 根据http传递的参数 ：	caHdrName           = "__caname__" 判断用户注册的ca名字：
+caname := r.Header.Get(caHdrName)
+
+根据enrollmentIDHdrName = "__eid__"   注册者的id   
+callerID := r.Header.Get(enrollmentIDHdrName)
+
+开始注册：ecret, err := h.RegisterUser(&req, callerID, caname)
+
+根据之前ca的配置，判断此注册用户是否有权限注册 然后将用的注册信息写入到数据库中
+secret, err = h.registerUserID(req, caname)
+
+从 RegistrationRequest提取数据，组织为UserInfo数据结构，存入数据中：
+
+// RegistrationRequest for a new identity
+type RegistrationRequest struct {
+	// Name is the unique name of the identity
+	Name string `json:"id" help:"Unique name of the identity"`
+	// Type of identity being registered (e.g. "peer, app, user")
+	Type string `json:"type" help:"Type of identity being registered (e.g. 'peer, app, user')"`
+	// Secret is an optional password.  If not specified,
+	// a random secret is generated.  In both cases, the secret
+	// is returned in the RegistrationResponse.
+	Secret string `json:"secret,omitempty" help:"The enrollment secret for the identity being registered"`
+	// MaxEnrollments is the maximum number of times the secret can
+	// be reused to enroll.
+	MaxEnrollments int `json:"max_enrollments,omitempty" def:"-1" help:"The maximum number of times the secret can be reused to enroll."`
+	// is returned in the response.
+	// The identity's affiliation.
+	// For example, an affiliation of "org1.department1" associates the identity with "department1" in "org1".
+	Affiliation string `json:"affiliation" help:"The identity's affiliation"`
+	// Attributes associated with this identity
+	Attributes []Attribute `json:"attrs,omitempty"`
+	// CAName is the name of the CA to connect to
+	CAName string `json:"caname,omitempty" skip:"true"`
+}
+
+
+insert := spi.UserInfo{
+Name:           req.Name,
+Pass:           req.Secret,
+Type:           req.Type,
+Affiliation:    req.Affiliation,
+Attributes:     req.Attributes,
+MaxEnrollments: req.MaxEnrollments,
+}
+
+err = registry.InsertUser(insert) 插入数据库
+
+向ca enroll：
+客户端发起enroll请求数据：
+
+服务接受的数据结构为：
+// EnrollmentRequestNet is a request to enroll an identity
+type EnrollmentRequestNet struct {
+	signer.SignRequest
+	CAName string
+}
+
+type SignRequest struct {
+	Hosts       []string    `json:"hosts"`
+	Request     string      `json:"certificate_request"`  保存的是用户提交的csr证书内容信息  主要对他签名数据
+	Subject     *Subject    `json:"subject,omitempty"`
+	Profile     string      `json:"profile"`
+	CRLOverride string      `json:"crl_override"`
+	Label       string      `json:"label"`
+	Serial      *big.Int    `json:"serial,omitempty"`
+	Extensions  []Extension `json:"extensions,omitempty"`
+}
+
+
+用户名和密码通过http参数传递过来：
+使用
+lib--> dbaccessor.go +360 line 
+func (u *DBUser) Login(pass string, caMaxEnrollments int) error {
+验证用户。标记数据库
+
+对用户的csr数据进行签名：
+// Sign the certificate
+	cert, err := sh.server.caMap[caname].enrollSigner.Sign(req.SignRequest)
+
 
 
 2、fabric 单服务器可以配置多个ca服务？为什么这么配置？怎么配置？
+ca server的yaml文件：
 
+cacount:
+
+cafiles:
+#    - ca/ca1/fabric-ca-server-config.yaml
+#    - ca/ca2/fabric-ca-server-config.yaml
+
+cacount和cafiles不能同时配置，cacount >0 则默认建立多个ca配置信息，否则根据cafiles配置文件的个数建立多个ca配置
+    
 
 3、 ca中的数据结构是怎样的？
+cmd -> fabric-ca-server -> main.go 中启动fabric-ca的main入口函数
+cmd -> fabric-ca-server -> init.go  初始化配置 从配置文件读取配置信息
+
+// Init initializes a fabric-ca server
+func (s *Server) Init(renew bool) (err error) {
+	// Initialize the config
+	err = s.initConfig()       初始化ca服务器的地址、端口信息 
+	if err != nil {
+		return err
+	}
+	// Initialize the default CA last
+	err = s.initDefaultCA(renew)
+	if err != nil {
+		return err
+	}
+	// Successful initialization
+	return nil
+}
+
+func (ca *CA) initConfig() (err error) {  初始化ca服务器的地址、端口信息 
+
+    err = s.CA.initConfig()  初始化默认ca的配置 家目录 ca配置过期时间默认值  证书路径
+	    if err != nil {
+		    return err
+	    }
+
+	err = s.initDefaultCA(renew)  
+	if err != nil {
+		return err
+	}
+}
+
+
+// initConfig initializes the configuration for the server
+func (s *Server) initConfig() (err error) {
+	// Home directory is current working directory by default
+	if s.HomeDir == "" {
+		s.HomeDir, err = os.Getwd()
+		if err != nil {
+			return fmt.Errorf("Failed to get server's home directory: %s", err)
+		}
+	}
+	// Create config if not set
+	if s.Config == nil {
+		s.Config = new(ServerConfig)
+	}
+	cfg := s.Config
+	// Set log level if debug is true
+	if cfg.Debug {
+		log.Level = log.LevelDebug
+	}
+	// Set config defaults if not set
+	if cfg.Address == "" {
+		cfg.Address = DefaultServerAddr
+	}
+	if cfg.Port == 0 {
+		cfg.Port = DefaultServerPort
+	}
+	s.CA.server = s
+	s.CA.HomeDir = s.HomeDir
+	err = s.CA.initConfig() 初始化默认ca配置
+	if err != nil {
+		return err
+	}
+	err = s.initMultiCAConfig()   加载多个ca配置信息、CAcount 大于0 ，则生成默认配置信息  否则加载默认的ca配置yaml文件
+	if err != nil {
+		return err
+	}
+	revoke.SetCRLFetcher(s.fetchCRL)
+	// Make file names absolute
+	s.makeFileNamesAbsolute()
+	return nil
+}
+
+
+// Initialize config related to multiple CAs
+func (s *Server) initMultiCAConfig() (err error) {
+	cfg := s.Config
+	if cfg.CAcount != 0 && len(cfg.CAfiles) > 0 {
+		return fmt.Errorf("The --cacount and --cafiles options are mutually exclusive")
+	}
+	cfg.CAfiles, err = util.NormalizeFileList(cfg.CAfiles, s.HomeDir)
+	if err != nil {
+		return err
+	}
+	// Multi-CA related configuration initialization
+	s.caMap = make(map[string]*CA)
+	if cfg.CAcount >= 1 {
+		s.createDefaultCAConfigs(cfg.CAcount) CAcount 大于0 ，则生成默认配置信息
+	}
+	if len(cfg.CAfiles) != 0 { 载默认的ca配置yaml文件
+		log.Debugf("Default CA configuration, if necessary, will be used to replace missing values for additional CAs: %+v", s.Config.CAcfg)
+		log.Debugf("Additional CAs to be started: %s", cfg.CAfiles)
+		var caFiles []string
+		caFiles = util.NormalizeStringSlice(cfg.CAfiles)
+		for _, caFile := range caFiles {
+			err = s.loadCA(caFile, false)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+
+func (s *Server) loadCA(caFile string, renew bool) error {
+
+    ca, err := NewCA(caFile, cfg, s, renew) 初始化ca  根据每个ca的配置文件初始化ca配置 数据库 证书 、签名的证书配置
+	    if err != nil {
+		    return err
+	    }
+
+    return s.addCA(ca)  将多个ca 对象保存在server的的（s.caMap[caName] = ca） caMap中
+    }
+}
+
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+func (s *Server) initDefaultCA(renew bool) error {
+	log.Debugf("Initializing default CA in directory %s", s.HomeDir)
+	ca := &s.CA
+	err := initCA(ca, s.HomeDir, s.CA.Config, s, renew) 初始化ca  根据每个ca的配置文件初始化ca配置 数据库 证书 、签名的证书配置
+	if err != nil {
+		return err
+	}
+	err = s.addCA(ca)    将默认的ca 对象保存在server的的（s.caMap[caName] = ca） caMap中
+	if err != nil {
+		return err
+	}
+	log.Infof("Home directory for default CA: %s", ca.HomeDir)
+	return nil
+}
+
+
+
 
 
 4、ca的其他配置
