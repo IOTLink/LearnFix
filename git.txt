@@ -1,2 +1,29 @@
 切换分支  远程master分子切换到v1.0.0分支
 git checkout -b v1.0.0 origin/master
+
+
+
+http://blog.csdn.net/top_code/article/details/52336221
+
+分支打标签：
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
+$ git  tag -a v1.0.0 -m 'v1.0.0 release'
+
+显示:
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
+$ git tag
+v1.0.0
+
+
+提交tag标签到远程服务器中：
+liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
+$ git push origin v1.0.0
+Counting objects: 5, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (5/5), 485 bytes | 0 bytes/s, done.
+Total 5 (delta 2), reused 0 (delta 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To github.com:IOTLink/LearnFix.git
+ * [new tag]         v1.0.0 -> v1.0.0
+
