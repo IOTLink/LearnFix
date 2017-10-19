@@ -28,7 +28,9 @@ To github.com:IOTLink/LearnFix.git
  * [new tag]         v1.0.0 -> v1.0.0
 
 
- 本地切换分支名称：
+本地切换分支名称：
+http://blog.chinaunix.net/uid-20401941-id-3343826.html
+
 liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (dev)
 $ git branch
 * dev
