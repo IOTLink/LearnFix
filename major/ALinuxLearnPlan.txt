@@ -6,6 +6,9 @@
 
 
 
+查找并删除文件：
+find ./ -name .git | xargs rm -rf  {}
+
 
 
 
