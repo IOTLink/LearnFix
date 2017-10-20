@@ -1,0 +1,10 @@
+
+mongodb 下载：
+https://www.mongodb.com/download-center#community
+
+
+http://www.runoob.com/mongodb/mongodb-linux-install.html
+http://www.cnblogs.com/xiaoqian1993/p/5936648.html
+
+
+

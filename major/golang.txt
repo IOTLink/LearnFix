@@ -1,0 +1,16 @@
+编译报错误信息：
+
+
+liuhy@liuhy ~/work/src/fabric-ca-demo/demo1 $ go build -o  main demo.go  base.go  common.go 
+../../github.com/fsnotify/fsnotify/inotify.go:19:2: cannot find package "golang.org/x/sys/unix" in any of:
+	/usr/local/go/src/golang.org/x/sys/unix (from $GOROOT)
+	/home/liuhy/work/src/golang.org/x/sys/unix (from $GOPATH)
+	/home/liuhy/work3/src/golang.org/x/sys/unix
+../../github.com/spf13/viper/util.go:29:2: cannot find package "gopkg.in/yaml.v2" in any of:
+	/usr/local/go/src/gopkg.in/yaml.v2 (from $GOROOT)
+	/home/liuhy/work/src/gopkg.in/yaml.v2 (from $GOPATH)
+	/home/liuhy/work3/src/gopkg.in/yaml.v2
+
+
+将编译的代码的工程下的vendor目录中golang.org/x/sys copy到系统  ~/work/src/golang.org/x/
+目录下，就可以解决
