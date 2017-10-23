@@ -443,6 +443,25 @@ Generate client certificate/key pair
 
 
 +++++++++++++++++++++++++++++++++++++++++++++
+postgres数据库安装：
+./initdb -U SYSTEM -D ../data 
+
+前台启动：
+ ./postgres -D ../data --log_statement=all
+
+ 创建管理员
+export LD_LIBRARY_PATH=../lib
+./createuser -U SYSTEM --superuser fabric_ca -h 127.0.0.1
+
+创建数据库（名字与管理员名一样）
+#./createdb -h 127.0.0.1 -p 5432 -U fabric_ca fabric_ca
+
+设置管理员密码：
+#./psql -U fabric_ca -d fabric_ca  -h 127.0.0.1 -p 5432 
+#\password fabric_ca 123456
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 1、
 fabric-ca 客户端源代码编译：
 

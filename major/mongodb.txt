@@ -30,3 +30,33 @@ liuhy bin # ./mongod
 ./mongod: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.23' not found (required by ./mongod)
 liuhy bin # 
 
+
+——————
+liuhy liuhy # LD_PRELOAD=/lib/x86_64-linux-gnu/libc-2.19.so  ln -sf /usr/local/lib/libc-2.23.so /lib/x86_64-linux-gnu/libc.so.6
+liuhy liuhy # LD_PRELOAD=/lib/x86_64-linux-gnu/libc-2.19.so  ln -sf /lib/x86_64-linux-gnu/libc-2.19.so /lib/x86_64-linux-gnu/libc.so.6
+
+liuhy liuhy # LD_PRELOAD=/lib/x86_64-linux-gnu/libc-2.19.so  ln -sf /usr/local/lib/libc-2.23.so /lib/x86_64-linux-gnu/libc.so.6
+liuhy liuhy # ls
+Segmentation fault
+
+
+不要修改系统的libc.so库
+使用环境变量修改程序的依赖库：
+http://blog.csdn.net/cpplang/article/details/8462768
+
+
+
+
+liuhy libc_build # ../configure --prefix=/usr/local/glibc-2.14^C
+liuhy libc_build # pwd
+/home/liuhy/glibc-2.23/libc_build
+liuhy libc_build # ../configure --prefix=/usr/local/glibc-2.14
+liuhy libc_build make && make install
+
+export LD_LIBRARY_PATH=/usr/local/glibc-2.14/lib:/usr/local/glibc-2.14/bin:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/glibc-2.14/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/glibc-2.14/lib/libc.so.6:$LD_LIBRARY_PATH
+
+
+export LD_PRELOAD=/usr/local/glibc-2.14/lib/glibc-2.23:$LD_PRELOAD
+

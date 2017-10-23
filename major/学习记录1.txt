@@ -1,0 +1,1567 @@
+线程调试：
+ set scheduler-locking on
+ off|on|step
+  
+
+建立数据库CREATE DATABASE "DEV115" WITH TEMPLATE = template0 ENCODING = 'GBK';
+创建用户 create user dev115; 则创建对用的模式DEV115
+修改用户名密码 alter user dev115 with password 'dev1234';
+./isql  -d DEV115 -UDEV115 -Wdev1234
+用户名必须是大写
+
+
+[builder@node287 psqlodbc]$ strings /lib64/libc-2.12.so  | grep LIBC_*
+GLIBC_2.2.5
+GLIBC_2.2.6
+GLIBC_2.3
+GLIBC_2.3.2
+GLIBC_2.3.3
+GLIBC_2.3.4
+GLIBC_2.4
+GLIBC_2.5
+GLIBC_2.6
+GLIBC_2.7
+GLIBC_2.8
+GLIBC_2.9
+GLIBC_2.10
+GLIBC_2.11
+GLIBC_2.12
+GLIBC_PRIVATE
+LIBC_FATAL_STDERR_
+
+
+
+
+LD_PRELOAD：
+在Unix操作系统的动态链接库的世界中，LD_PRELOAD就是这样一个环境变量
+用以指定预先装载的一些共享库或目标文件，且无论程序是否依赖这些共享库或者文件，LD_PRELOAD指定的这些文件都会被装载
+其优先级比LD_LIBRARY_PATH自定义的进程的共享库查找路径的执行还要早
+
+
+
+v8编译机器：
+14 232   builder  builder
+
+
+
+git秘钥：
+打开 http://192.168.6.36/gerrit/ ， 按照提示使用帐号/密码登陆 
+注册邮箱地址 
+将邮箱中的连接输入浏览器，打开补全信息页面 (主要补充公钥信息) 
+在本地生成公钥 ssh-keygen -t rsa 回车即可 
+将 .ssh/id_isa.pub 文件的内容粘贴到 gerrit 中 
+
+hyliu/hyliu0121
+http://192.168.6.36/gerrit/#/settings/ssh-keys
+
+
+kingbase 源代码编译即测试：
+KINGBASE712_UPGRADE1
+vi ./src/test/regress/log/initdb.log
+
+ 
+
+
+kingbase测试：
+make icase-check 区分大小写
+make check 不区分大小写
+
+gcc 高版本加参数：
+CFLAGS="-fno-aggressive-loop-optimizations" ./configure
+
+
+linux编译失败问题：
+/usr/bin/ld: besrc/SUBSYS.o: undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
+//lib/x86_64-linux-gnu/libdl.so.2: error adding symbols: DSO missing from command line
+
+
+在Makefile增加：
+-ldl
+链接库
+
+
+
+
+columnstorage 一般不编译  ---》0
+./KingbaseSrc_New/src/tools/msvc/config.pl
+
+
+license地址：
+http://192.168.6.36/gerrit/gitweb?p=KINGBASE712_UPGRADE1.git;a=tree;f=license;h=d35476b2582edcfb418a848d2f1f0b75814c53b8;hb=master
+
+
+v8 win编译
+http://192.168.4.28/wiki/V8%E7%9A%84%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E5%92%8C%E7%BC%96%E8%AF%91%E6%96%B9%E6%B3%95
+
+
+
+win kingbase编译步骤：
+1：
+vs2008中断进入KINGBASE_FOR_ALIYUN\src\tools\msvc目录下运行build.bat
+如果环境配置正确则编译没有问题
+
+2：
+perl install.pl install bin
+
+3：
+KINGBASE_FOR_ALIYUN\install\bin 目录初始化数据库
+initdb -USYSTEM -WMANAGER --ssousername=SYSSSO --ssopassword=LABEL --saousername=SYSSAO --saopassword=AUDIT --database=TEST -D ../data 
+
+启动命令：
+./kingbase -D ../data
+连接命令：
+./isql -USYSTEM -WMANAGER -dTEST 
+
+
+
+
+
+
+
+Linux线程数的限制
+http://blog.chinaunix.net/uid-20662820-id-5690021.html
+slabtop –sc命令分析
+
+
+win32编译机器
+mstsc -v 192.168.6.153
+ kingbase kingbase
+
+
+ODBC DCI OCI接口目前新增了release的符号文件：
+在编译脚本使用参数-g -O2编译的release接口，
+在ODBC DCI OCI接口执行make install时，会执行：
+objcopy --only-keep-debug XXXX.so  C_INTERFACE/debug/XXXX.so.debug  解释：生成XXXX.so的符号文件XXXX.so.debug
+strip  C_INTERFACE/release/XXXX.so  解释：剔除生成XXXX.so中的debug符号信息
+
+所以在C_INTERFACE/release目录下放置的是release版本的动态库（注：src/.libs下的动态库不是release版本的）
+C_INTERFACE/debug放置的是XXXX.so.debug 动态库对应的符号文件；
+
+在gdb调试使用
+objcopy --add-gnu-debuglink=XXXX.so.debug XXXX.so 解决：将符号信息加载到XXXX.so文件中；
+不建议使用gdb -s XXXX.so.debug 因为odbc经过系统odbc库是无法加载符号信息；
+
+
+valgrind检测：
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes  ./main
+
+
+
+调研：
+http://www.qgis.org/en/site/
+
+GDB 调试加载debug符号文件
+sym-file debug文件
+
+ODBC接口：----------------------》
+修改Makefile.in 293行
+安装so库；
+
+configure 中加2717 -g
+--
+
+提取debug符号表信息：
+
+objcopy --only-keep-debug kdbodbc7.so kdbodbc7.so.debug
+strip kdbodbc7.so -o kdbodbc7.so.strip
+mv kdbodbc7.so.strip  kdbodbc7.so
+
+objcopy --only-keep-debug    kdbodbc7S.so   kdbodbc7S.so.debug
+strip   kdbodbc7S.so   -o   kdbodbc7S.so.strip
+mv kdbodbc7S.so.strip   kdbodbc7S.so
+
+
+加符号文件：
+通过gdb 里执行 symbol-file libclntsh.so.debug 也可以加载上调试信息
+
+或者：
+
+objcopy --add-gnu-debuglink=kdbodbc7.so.debug  kdbodbc7.so
+objcopy --add-gnu-debuglink=kdbodbc7S.so.debug kdbodbc7S.so
+
+mkdir -p -- /home/hyliu/code/new/C_INTERFACE/debug/debug/de
+
+
+strip实验删除符号：
+文件大小：
+hyliu@hyliu ~/code/C_INTERFACE/src/odbc/.libs $ du -sh *.so
+616K	kdbodbc7.so
+12K	kdbodbc7S.so
+
+堆栈信息：
+(gdb) bt
+#0  __GI___libc_free (mem=0xde0b6b3a7640000) at malloc.c:2929
+#1  0x00007ffff63d87a1 in ?? () from /home/hyliu/code/C_INTERFACE/src/odbc/.libs/kdbodbc7.so
+#2  0x00007ffff63fd7ba in SQLDriverConnect () from /home/hyliu/code/C_INTERFACE/src/odbc/.libs/kdbodbc7.so
+#3  0x00007ffff7b640ba in SQLDriverConnect (hdbc=0x603a30, hwnd=0x0, conn_str_in=0x7fffffffdfd0 "DSN=kingbase", len_conn_str_in=-3, 
+    conn_str_out=0x7fffffffdbd0 "8\002", conn_str_out_max=1024, ptr_conn_str_out=0x7fffffffdb94, driver_completion=1) at SQLDriverConnect.c:1228
+#4  0x0000000000400be4 in main (argc=1, argv=0x7fffffffe4d8) at odbc_connect.c:61
+
+
+
+objcopy --strip-debug ：
+文件大小：
+hyliu@hyliu ~/code/C_INTERFACE/src/odbc/.libs $ du -sh *.so
+656K	kdbodbc7.so
+16K	kdbodbc7S.so
+
+(gdb) bt
+#0  0x00007ffff63d8740 in MY_DriverConnect () from /home/hyliu/code/C_INTERFACE/src/odbc/.libs/kdbodbc7.so
+#1  0x00007ffff63fd7ba in SQLDriverConnect () from /home/hyliu/code/C_INTERFACE/src/odbc/.libs/kdbodbc7.so
+#2  0x00007ffff7b640ba in SQLDriverConnect (hdbc=0x603a30, hwnd=0x0, conn_str_in=0x7fffffffdfd0 "DSN=kingbase", len_conn_str_in=-3, 
+    conn_str_out=0x7fffffffdbd0 "8\002", conn_str_out_max=1024, ptr_conn_str_out=0x7fffffffdb94, driver_completion=1) at SQLDriverConnect.c:1228
+#3  0x0000000000400be4 in main (argc=1, argv=0x7fffffffe4d8) at odbc_connect.c:61
+
+————————————————————————————————————————————————
+
+
+
+gdb打印数组的所有字符信息：
+set print element 0
+
+
+XP机器：
+测试中心5*8h 2号机柜  BJ-GPC—0034
+    机器是双系统的
+	192.168.5.93  Administrator  123456
+	
+	
+
+checking for SQLGetPrivateProfileString in -lodbcinst... no
+checking for SQLGetPrivateProfileString in -liodbcinst... no
+configure: error: no suitable ODBC driver manager found
+建立libodbcinst.so的软连接 解决
+
+
+------------------------
+
+在Linux下启动Oracle
+sqlplus "/as sysdba"
+接着请输入
+SQL> startup
+另外停止数据库的指令如下：
+SQL> shutdown immediate
+
+二、检查Oracle DB监听器是否正常
+
+回到终端机模式，输入：
+
+$ lsnrctl status
+
+$ lsnrctl start
+
+启动监听器
+
+SQL> conn sys@orcl as sysdba
+然后输入密码，sys以sysdba身份登入数据库。
+
+
+SQL> startup
+ORA-00845: MEMORY_TARGET not supported on this system
+解决：
+mount -t tmpfs shmfs -o size=2g /dev/shm
+
+
+
+
+------------------------------
+
+
+
+内存泄露检测：
+valgrind  --leak-check=full --show-leak-kinds=all  --log-file=./mem.c ./DciTest 
+
+
+gdb:
+fs cmd
+
+
+copy sql命令复制语句：
+copy BROKER from '/home/hyliu/kingbase/bin/sql.sql' WITH DELIMITER '|';
+数据复制文件中的数据数据表中
+ 
+
+导出数据文件sql：
+./sys_dump -USYSTEM -WMANAGER -f ./file.sql -F p --no-lob databasename
+./sys_dump -USYSTEM -WMANAGER -f ./file.sql -F p --no-lob TEST
+
+ 
+OA:
+提醒一：现《技术平台工作任务单》中任务类别为项目管理、部门管理、部门建议三个时，填写完成计划任务后无需确认人确认计划任务。（其它任务类别流程不变，仍需确认任务计划）
+流程为：发起人（填写计划任务）－>发起人（填写实际执行）－>任务确认人（确认执行情况与评价）－>QA（审计）
+提醒二：可按月提交的项目和任务类别（最晚为每月最后一个工作日提交）：项目为“部门工作”时；项目类别为“项目管理”时。
+提醒三：项目“部门工作”只能与任务类别“部门管理”和“部门建设”相互匹配，否则无法提交。
+	  
+
+
+获取大对象长度：
+TEST=# select * from TC_任务成果表;
+ ID  | 成果图片1 
+-----+-----------
+ 256 | 171737
+(1 行)
+
+TEST=# select length(171737::oid::blob);
+ LENGTH  
+---------
+ 1430528
+(1 行)
+
+
+
+http://192.168.6.36/
+
+git密码：
+hyliu/hyliu0121
+
+
+完善帐号 
+打开 http://192.168.6.36/gerrit/ ， 按照提示使用帐号/密码登陆 
+注册邮箱地址 
+将邮箱中的连接输入浏览器，打开补全信息页面 (主要补充公钥信息) 
+在本地生成公钥 ssh-keygen -t rsa 回车即可 
+将 .ssh/id_isa.pub 文件的内容粘贴到 gerrit 中 
+获取代码 
+git clone ssh://klwang@192.168.6.36:29418/KingbaseES 
+注意将 klwang 换成自己的名称，KingbaseES 换成需要的仓库名称 
+提交review 
+git push ssh://klwang@192.168.6.36:29418/KingbaseES HEAD:refs/for/master 
+
+
+
+
+咱们 gerrit提交代码  需要五个步骤  git add
+还有git commit -m "test_jenkins" -a 
+gitdir=$(git rev-parse --git-dir); scp -p -P 29418 hyliu@192.168.6.36:hooks/commit-msg ${gitdir}/hooks/
+git commit --amend
+git push origin HEAD:refs/for/master
+
+
+
+
+昨天的问题，代码review填写任务类型为评审
+柳航宇 14:45:09
+那如果是组内新人问问题，指导性工作怎么写？
+夏青 14:46:55
+工作量大嘛，按冯老师的意思，小工作量的话就合到项目工作里就行
+夏青 14:47:08
+不用单独再写了
+柳航宇 14:57:30
+不大
+
+
+大家好：
+
+       再次提醒一下大家，新OA技术表单全部启用，4月份的工作及工时请全部填写到新OA中。
+
+       如果填写时无法选择到项目名称，请找相关负责人进行立项。
+
+       技术类项目：各项目经理负责立项。
+
+       运维类项目：王林涛负责立项。
+
+       销售类项目：项目销售人员负责立项。如不立项，技术人员可不提供技术服务。
+	   
+
+
+wifi密码：
+kingbase.10/rdjc0324
+o_O/qwertyuiop
+两个wifi
+
+
+工作日志：
+新OA启用了：http://210.56.193.18:2016/seeyon/index.jsp 我们的OA，以后没有周报了，工作量统计是以任务为单位的，但是工时依然会统计，做为KPI的一项，大家注意填写。  
+
+销售类的项目，就是销售刚开始跟进的项目，如果需要我们服务，他们会提出申请，由我们的人跟进的话，填写《销售项目服务记录单》，一般包括售前的咨询，交流，评估等工作； 
+
+运维类的项目，就是已经上线的项目，如果需要我们去售后支持，外出出差之类，需要填写《客户服务记录单》，一般去现场处理事故，维护等填写这个；  
+
+其他类的工作，填写《技术平台工作任务单》，每件事一个单子，不再以周为单位去划分，而以事件去划分。  
+《技术平台工作任务单》中，     如果是自主学习等 项目名称选“技术立项申请表部门工作夏青”，任务类别填写部门建设及以子项；     如果是没有立项的临时任务，项目名称选“技术立项申请表l临时工作夏青”，任务类别该怎么选就怎么选。    
+ 注意：         任务类别中，部门管理只有相关经理组长等填写，项目管理只有项目经理等填写，其他人不得填写。         所有任务必须有产出，包括调研，交流，学习，培训等。        
+
+
+
+
+
+OCI文档：http://www.gqdzs.com/read/13450.html#
+
+
+
+大家在代码编辑的设置上稍微注意一下哈，新添加的文件除非Windows专用文件，否则设置为unix格式，也就是说LF换行。
+代码缩进使用tab键，宽度设置为4
+
+
+
+修改kingbase手册 chm文件：路径
+KINGBASEV7_DOC_FOR_ALIYUN\kingbase\doc\src\developer\
+
+
+linux ODBC打log信息 设置：
+ /usr/local/etc/odbcinst.ini 
+中设置：
+[ODBC]
+Trace=yes
+TraceFile=/tmp/sql.log
+
+或者这个文件的[]驱动下面设置LogFile：
+[KingbaseES 7 ODBC Driver]
+Driver=/root/odbc_timeout/C_INTERFACE/src/odbc/.libs/kdbodbc7.so
+Setup=/root/odbc_timeout/C_INTERFACE/src/odbc/.libs/kdbodbc7s.so
+UsageCount=2
+LogFile=/tmp/odbc_desc.log
+
+
+————————————————————————————————————————————————————————————
+/dev/pts/1: Permission denied.
+chmod 777 /dev/pts/1 
+
+
+在脚本中直接加入：
+/usr/bin/gdb -nx  --args ./DciTest $DCITest_opt
+ 
+接口 测试：
+./configure -K /home/hyliu/kingbase --port 2222 --use-initkdb=yes 
+如果出现错误可能是脚本的sh 需要都说unix换码
+
+find . -type f -name "*.sh" | xargs dos2unix
+
+______________________________________________________________________
+odbc win 注册：
+C_INTERFACE\bin\kdbodbc7.reg  win7 32 64位 点击此文件注册
+如果是64位注册32位odbc驱动，调用C_INTERFACE\bin\kdbodbc7_32node.reg
+
+在调用这个脚本前需要设置驱动文件的绝对路径：
+将文件$USER_INSTALL_DIR$ 修改为绝对路径；
+______________________________________________________________________
+
+查询超时配置参数：
+
+ResponseTimeout
+此扩展连接属性Linux平台支持，Windows平台不支持。
+表示发送SQL给Kinbgase服务器后，网络等待Kinbgase响应的超时时间，如果SQL
+执行超过了配置的超时时间，则通信Sokcet释放掉，造成连接不可用。
+可取值：大于等于0小于等于214783647的任何正整数，建议此值的最小值为480秒;
+0表示无限等待无超时限制，如果没有配置则表示默认值214783647秒；
+
+
+odbc配置：
+在linux odbc数据源配置文件odbc.ini中添加ResponseTimeout单位为秒；
+例如：
+ResponseTimeout =480
+
+如果ResponseTimeout配置为0则查询后无限等待查询结果；
+如果没有配置ResponseTimeout，则查询等待214783647秒返回；
+
+ResponseTimeout支持两种配置方式：
+可以在连接串中配置：Driver={KingbaseES 7 ODBC	Driver};Server=127.0.0.1;Port=54321;Database=TEST;UID=SYSTEM;PWD=MANAGER;ResponseTimeout=10;
+或者在odbc.ini文件中配置QueriedTimeout
+
+——————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+DCI/OCI配置：
+需要在配置文件sys_service.conf中配置 ResponseTimeout
+例如：
+ResponseTimeout=480
+
+如果没有配置，则取214783647秒；
+如果配置0 ，则查询后无限等待；
+如果配置具体秒数，则等待秒数后还没有执行完毕则返回超时错误信息；
+——————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+odbc iointerface 编译失败问题：
+
+/root/odbc-for-aliyun/src/iointerface/lib/x64/x86_64
+需要将 iointerface 目录下lib/x64/x86_64  拷贝到系统/x86_64 
+同时在iointerface目录下建立软连接：让其找到kci接口；
+
+libkci.so -> /home/hyliu/kingbase/lib/libkci.so.5
+libkci.so.5 -> /home/hyliu/kingbase/lib/libkci.so.5
+
+iointerface 目录编译出现错误如下：没有找到原因，可能是我的automake版本不对吧
+解决  我是把/root/odbc-for-aliyun/src/iointerface 目录拷贝到我的/root/ODBC_2016.3/C_INTERFACE
+替换iointerface 目录编译的
+
+: command not found
+: command not found 
+: command not found 
+
+unixODBC path:
+\\192.168.4.21\Software\BaseSoft\UnixODBC\src\2.3.1
+
+
+
+[root@X2 ~]$ cat /proc/sys/net/ipv4/tcp_keepalive_time 
+7200  2小时 在开始第一次keepalive探测的时候，会等待7200秒（也就是两个小时）
+[root@X2 ~]$ cat /proc/sys/net/ipv4/tcp_keepalive_intvl  
+75  间隔    然后每隔75秒重发一次
+[root@X2 ~]$ cat /proc/sys/net/ipv4/tcp_keepalive_probes  
+9   如果连续9次重发没有响应，这个tcp链接将被关闭
+
+
+
+可以使用下面的命令操作这些变量:
+$ sysctl -w net.ipv4.tcp_keepalive_time=60 net.ipv4.tcp_keepalive_probes=3 net.ipv4.tcp_keepalive_intvl=10
+
+这个命令将TCP keepalive的超时设为60秒，并有三次重发，每次间隔10秒。
+因此，你的应用程序90秒(60  + 10 + 10 + 10)后检测到TCP断开
+
+
+-------------------------------------------------------
+程序中有游离的‘\240’‘\302’‘\xxx’解决方案 
+sed -i 's/\o240\|\o302//g' testaio.cpp
+
+转换文件编码
+       :set fileencodings=utf-8 
+
+
+InnerDCIFetch2 调用 for (iRow = 0; iRow < iters; iRow++) 循环调用MY_ExtendedFetch 
+MY_ExtendedFetch 调用result = STMT_fetch(stmt);
+STMT_fetch 调用copy_and_convert_field_bindinfo
+copy_and_convert_field_bindinfo 函数调用BindInfoClass *bic = &(ardopts->bindings[col]); 获取用户空间的define
+然后调用copy_and_convert_field 将value 和len保存到用户define中
+
+其中ardopts = STMT_get_ARDF(stmt); define指针在这个上定义的
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+gdb调试技巧：
+SOCK_get_next_byte函数：
+里边的栈上的变量有三个，一个是self,一个是retry_count，还有一个func
+p *(char**)((char*)&self+4)
+参数和变量地址紧挨着
+看看打印出来的内容和func一样不
+————————————————————————————————————————————————————————————————————————————
+
+gdb条件断点：
+b 2971 if i == 10
+行号  变量i
+
+
+执行：
+
+        /*                                                                                                                                      x
+   x651              *      The real execution.                                                                                                             x
+   x652              */                                                                                                                                     x
+   x653     exec:                                                                                                                                           x
+   x654             retval = STMT_execute(stmt);        
+#0  0x00007ffff75f59cd in Exec_with_parameters_resolved (stmt=0x6ce1f0, exec_end=0x7fffffffc1fc) at execute.c:654
+#1  0x00007ffff75f6bc7 in MY_Execute (hstmt=0x6ce1f0, flag=0) at execute.c:1135
+#2  0x00007ffff767c912 in InnerDCIStmtExecute (svchp=0x6b5a70, stmtp=0x6d42b0, errhp=0x6b57f0, iters=2, rowoff=0, snap_in=0x0, snap_out=0x0, mode=0)
+    at kdci_stmt.c:3565
+#3  0x00007ffff7677ce9 in DCIStmtExecute (svchp=0x6b5a70, stmtp=0x6d42b0, errhp=0x6b57f0, ite
+
+
+别人下载你本地的代码：
+ssh://[user@]host.xz[:port]/path/to/repo.git/
+
+
+dos2unix 转化
+git config --global core.autocrlf false 可以关掉自动的dos unix的转换
+
+
+切换分支：
+git checkout  master
+git checkout  for_v8_express
+
+
+
+git学习
+1、git pull  更新代码
+或者git fetch
+
+2、git status 查看修改状态
+3、git commit 更新到本地
+
+设置用户名：
+ git config --global user.name "hyliu"
+设置邮箱：
+git config --global user.email hyliu@kingbase.com.cn
+
+提交到远程服务器上：
+git push origin HEAD:refs/for/master
+
+下载配置文件
+scp -p -P 29418 hyliu@192.168.6.36:hooks/commit-msg .git/hooks/
+
+缀加提交：
+git commit --amend
+
+
+出现错误：
+Administrator@hyliu MINGW64 /e/Repository2016/C_INTERFACE (master)
+$ git push origin HEAD:refs/for/master
+Counting objects: 7, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (7/7), 943 bytes | 0 bytes/s, done.
+Total 7 (delta 4), reused 0 (delta 0)
+remote: Resolving deltas: 100% (4/4)
+remote: Processing changes: refs: 1, done
+To ssh://hyliu@192.168.6.36:29418/C_INTERFACE
+ ! [remote rejected] HEAD -> refs/for/master (you are not allowed to upload merges)
+error: failed to push some refs to 'ssh://hyliu@192.168.6.36:29418/C_INTERFACE'
+需要运行
+scp -p -P 29418 hyliu@192.168.6.36:hooks/commit-msg .git/hooks/
+下载脚本文件
+然后运行
+git commit --amend
+
+vi .git/config
+内容：
+[core]
+        repositoryformatversion = 0
+        filemode = false
+        bare = false
+        logallrefupdates = true
+        symlinks = false
+        ignorecase = true
+        hideDotFiles = dotGitOnly
+[remote "origin"]
+        url = ssh://hyliu@192.168.6.36:29418/C_INTERFACE
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+        remote = origin
+        merge = refs/heads/master
+~
+~
+
+
+git使用：
+1、git pull  更新代码 
+2、下载配置文件
+scp -p -P 29418 hyliu@192.168.6.36:hooks/commit-msg .git/hooks/
+3、git commit 更新到本地
+4、缀加提交：
+git commit --amend
+5、最终提交主分支
+提交到远程服务器上：
+git push origin HEAD:refs/for/master
+
+1、首先将本地文件提交到一个ID上
+本地git add -u
+2、运行git  commit / git  commit --amend
+3、 提交到远程 git push origin HEAD:refs/for/master
+
+
+
+
+dos2unix confgure
+dos2unix confgure.df
+
+find . -type f -name "config*" | xargs dos2unix
+find . -type f -name "depcomp*" | xargs dos2unix
+
+
+
+
+内存泄露检测
+$valgrind --tool=memcheck  --log-file=/home/trunk/valgrind_log_all --leak-check=full --error-limit=no  --show-leak-kinds=all /opt/lim/bin/limserver
+
+其中--leak-check=full指的是完全检查内存泄漏，
+--show-reachable=yes是显示内存泄漏的地点，
+--trace-children=yes是跟入子进程。
+当程序正常退出的时候valgrind自然会输出内存泄漏的信息。
+
+
+V8 kingbase:
+\\192.168.4.21\Software\BaseSoft\KingbaseES\8.0.0
+初始化：
+./initdb -U SYSTEM   -D ../data
+
+./kingbase -D ../data --log_statement=all
+./ksql -U SYSTEM test
+
+
+
+命令的默认路径：
+[root@X2 ~]$ which ldd
+/usr/bin/ldd
+[root@X2 ~]$ 
+[root@X2 ~]$ whatis ldd
+ldd                  (1)  - print shared library dependencies
+[root@X2 ~]$ info ldd
+[root@X2 ~]$ type ldd
+ldd is /usr/bin/ldd
+[root@X2 ~]$ type rm
+rm is aliased to `rm -i'
+
+
+
+时间差计算：
+dateadd()
+SELECT DATEADD('day', 10, CAST('2002-3-1' AS TIMESTAMP)) AS RESULT;
+SELECT DATEADD('month', -1, current_timestamp) AS RESULT;
+
+
+Oracle测试例子：
+http://www.oracle.com/technetwork/database/enterprise-edition/downloads/112010-win64soft-094461.html
+win64_11gR2_examples.zip 
+
+
+ldd 是一个脚本：
+如果出现问题：
+not a dynamic executable
+或者 Segmentation fault
+那么可能是重新安装 glibc-2.6.1.tar.gz 导致的；
+
+ld-2.6.1.so     
+查看：
+locate ld-linux.so.2
+locate ld-linux-x86-64.so.2
+
+具体查看：
+[hyliu@X2 lib]$ locate ld-linux.so.2
+/lib/ld-linux.so.2
+[hyliu@X2 lib]$ locate ld-linux-x86-64.so.2
+/home/oracle/app/oracle/product/12.1.0/dbhome_1/lib/stubs/ld-linux-x86-64.so.2
+/lib64/ld-linux-x86-64.so.2
+/tools/glibc-build-2.6.1/elf/ld-linux-x86-64.so.2
+/usr/local/lib/ld-linux-x86-64.so.2
+[hyliu@X2 lib]$ 
+[hyliu@X2 lib]$ ll /lib/ld-linux.so.2
+lrwxrwxrwx 1 root root 9 Sep  1 11:37 /lib/ld-linux.so.2 -> ld-2.5.so
+[hyliu@X2 lib]$ 
+
+[root@X2 ~]$ ll /usr/local/lib/ld-linux-x86-64.so.2
+lrwxrwxrwx 1 root root 15 Nov 27 16:45 /usr/local/lib/ld-linux-x86-64.so.2 -> ld-2.6.1.so
+
+即使用的是那个ld链接程序
+
+默认路径问题：
+[root@X2 ~]$ ldd
+-bash: /usr/local/bin/ldd: No such file or directory
+
+[root@X2 .libs]$ locate ldd
+/usr/bin/ldd
+设置：
+export PATH=:/usr/bin:$PATH
+问题解决：
+[root@X2 .libs]$ ldd kdbodbc7.so 
+	linux-vdso.so.1 =>  (0x00007fffc07fe000)
+	libodbcinst.so.1 => /usr/lib64/libodbcinst.so.1 (0x00007f15b80fc000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f15b7ee0000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007f15b7b86000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x00007f15b7982000)
+	/lib64/ld-linux-x86-64.so.2 (0x000000356de00000)
+	
+	
+-----------------------------------------
+Unicode两种代码点表：
+即符号和代码点之间的关系：
+UCS-2 用2个字节表示代码点   取值范围为 U+0000～U+FFFF
+UCS-4 用4个字节表示代码点   范围为 U+00000000～U+7FFFFFFF，其中 U+00000000～U+0000FFFF和UCS-2是一样的
+
+代码点在计算机中如何存储是：较多的就是UTF-16和UTF-8
+
+UTF-16使用2个字节存储代码点，2个字节前后顺序就有大小端区别：
+UTF-16包括三种：
+UTF-16（带有BOM格式的），UTF-16BE（Big Endian），UTF-16LE（Little Endian）
+“ABC”这三个字符用各种方式编码后的结果如下：
+
+UTF-16BE	                00 41 00 42 00 43
+UTF-16LE	                41 00 42 00 43 00
+UTF-16(Big Endian)	  FE FF 00 41 00 42 00 43
+UTF-16(Little Endian) FF FE 41 00 42 00 43 00
+UTF-16(不带BOM)	            00 41 00 42 00 43
+
+UTF-8、 UTF-16、UTF-32都是将数字转换到程序数据的编码方案。
+
+
+
+大小端区别：
+昨天去被猎头来到Infosoft（英孚美）面试，整体感觉还可以，就是问这个问题的时候，自己的回答不是很完美，自己心里觉得很不爽，所以现在把这个知识点给补上！希望以后能用的到，并且和各位一起共勉！
+
+一、大端与小端、MSB与LSB
+在嵌入式开发中，大端（Big-endian）和小端（Little-endian）是一个很重要的概念。假如现有一32位int型数0x12345678，那么其MSB(Most Significant Byte，最高有效字节)为0x12，其LSB (Least Significant Byte，最低有效字节)为0x78，在CPU内存中有两种存放方式：（假设从地址0x4000开始存放）
+方式1：
+内存地址
+0x4000
+0x4001
+0x4002
+0x4003
+存放内容
+0x12
+0x34
+0x56
+0x78
+
+方式2：
+内存地址
+0x4000
+0x4001
+0x4002
+0x4003
+存放内容
+0x78
+0x56
+0x34
+0x12
+那么，方式1的存放形似称为大端模式（Big-endian），
+方式2的存放形似称为小端模式（Little-endian）。
+即，在大端模式下，数据的MSB存放在低地址；在小端模式下，数据的LSB 存放在低地址。
+
+二、判断大小端的程序。
+很多情况下我们都是用一小段测试代码来判断CPU的大小端模式的。
+程序1：
+int checkEnd()
+{
+int i=0x12345678;
+char *c=(char *)&i; 
+return(*c==0x12)
+}
+返回值：大端返回1，小段返回0
+程序2：
+int checkEnd()
+{
+union
+{
+long a;
+char b
+}u;
+
+u.a = 1;
+if (u.b == 1) return 0;
+else return 1;
+}
+返回值：大端返回1，小段返回0
+
+
+
+
+locale
+
+linux 做编码转化
+export LC_ALL=zh_CN.GBK
+curl -s http://codingstandards.iteye.com/ | /usr/bin/iconv -f utf8 -t gbk  
+因为gbk是gb18030的子集:
+curl -s http://codingstandards.iteye.com/ | /usr/bin/iconv -f utf8 -t gb18030
+
+查看编码名称：
+/usr/bin/iconv  -l
+
+
+查看文件编码：
+[root@X2 ~]$ file bom.txt 
+bom.txt: UTF-8 Unicode text, with no line terminators
+
+使用hexdump查看BOM信息：
+hexdump -C out.html
+
+例如：
+[root@X2 ~]$ hexdump -C bom.txt 
+00000000  ef bb bf e6 9f b3 e8 88  aa e5 ae 87   
+window在保存一个以UTF-8编码的文件时，在头添加了“ef bb bf”表示utf-8编码；
+
+
+vi中:set fileencoding 查看文件编码
+编码转化：
+[root@X2 ~]$ /usr/bin/iconv -f UTF-8 -t GBK bom.txt 
+柳航宇
+
+Unicode的学名是"Universal Multiple-Octet Coded Character Set"，简称为UCS
+UCS有两种格式：UCS-2和UCS-4。顾名思义，UCS-2就是用两个字节编码，UCS-4就是用4个字节
+UCS-2有2^16=65536个码位，UCS-4有2^31=2147483648个码位。
+
+UTF-8转Unicode 编码命令：
+/usr/bin/iconv -f utf-8 -t UNICODE  han.txt -o han5.txt
+
+
+UCS-2编码(16进制)	UTF-8 字节流(二进制)
+0000 - 007F	        0xxxxxxx
+0080 - 07FF	        110xxxxx 10xxxxxx
+0800 - FFFF	        1110xxxx 10xxxxxx 10xxxxxx
+
+例如“汉”字的Unicode编码是6C49。6C49在0800-FFFF之间，所以肯定要用3字节模板了：1110xxxx 10xxxxxx 10xxxxxx。
+将6C49写成二进制是：0110 110001 001001， 用这个比特流依次代替模板中的x，得到：11100110 10110001 10001001，即E6 B1 89。
+
+UCS有两种格式：UCS-2和UCS-4
+但是：编码方案是：
+
+UTF-8就是以8位为单元对UCS进行编码
+UTF-16以16位为单元对UCS进行编码
+
+UCS-2、UCS-4 和 UTF-8 UTF-16的关系：
+任何文字符号在Unicode中都对应一个值，这个值称为代码点；
+代码点在计算机中如何存储？
+存储方式的称为UTF（Unicode Transformation Format），其中应用较多的就是UTF-16和UTF-8了
+
+
+---------------------------------------------------------------------------------------
+
+查询pg数据库中已知的数据类型的占用字节大小：
+select * from sys_type;
+ 
+如果查不到的话：查询这些表：
+首先查询表的oid：
+select OID from sys_class where RELNAME = '表名';
+
+根据列名和字段名查询字段占用字节大小：
+TEST=# select ATTNUM ,ATTLEN, ATTNAME from SYS_CATALOG.SYS_ATTRIBUTE where ATTNAME = 'ID' and ATTRELID = 16393
+TEST-# ;
+ ATTNUM | ATTLEN | ATTNAME 
+--------+--------+---------
+      1 |      4 | ID
+(1 row)
+
+
+TEST=# \d booltab
+    Table "PUBLIC.BOOLTAB"
+ Column |  Type   | Modifiers 
+--------+---------+-----------
+ ID     | INTEGER | 
+ B      | BOOLEAN | 
+Tablespace: "SYSTEM"
+
+
+ 
+
+
+linux修复文件系统：
+[root@X2 nginx]$ df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/sda1             485G   41G  420G   9% /
+tmpfs                 1.4G     0  1.4G   0% /dev/shm
+
+[root@X2 nginx]$ file -s /dev/sda1
+
+修复：
+[root@X2 nginx]$ fsck.ext3 -y /dev/sda1
+
+
+
+
+OCI资源：
+http://docs.oracle.com/database/121/LNOCI/ociabdem.htm#LNOCI280
+http://docs.oracle.com/database/121/LNOCI/oci09adv.htm#LNOCI091
+http://docs.oracle.com/database/121/LNOCI/oci09adv.htm#LNOCI16700
+http://docs.oracle.com/database/121/LNOCI/oci02bas.htm#LNOCI16240
+http://docs.oracle.com/apps/search/search.jsp?word=oci+intreface&product=e50529-01&book=LNOCI
+
+
+
+公司的电话 打出去需要拨什 加0
+
+
+创建kingbase默认远程管理账户和密码：
+账户密码：krms 密码krms
+
+授权文件：
+kingbase license.dat
+\\192.168.4.21\Software\BaseSoft\License\licenses\ES\712
+
+
+kingbase图形化安装kingbase：
+\\192.168.4.21\KingbaseES\7.1.2\7.1.2.0589-release for 长沙5,6院-XX云 (kingbase for CS_GT5XX_ALIYUN）\7.1.2.0589-release\installer\windows-x86_64\installer
+
+
+DEVICE=eth0
+BOOTPROTO=none
+IPADDR=192.168.6.78
+NETMASK=255.255.240.0
+HWADDR=90:E6:BA:60:61:36
+ONBOOT=yes
+
+
+g++ -o test test.c -lclntsh -L/home/oracle/app/oracle/product/11.2.0/dbhome_1/lib/ -lecpg
+proc code=c parse=none iname=test.pc oname=test.c
+
+
+Oracle demo 例子下载：
+http://www.oracle.com/technetwork/database/enterprise-edition/downloads/112010-win64soft-094461.html
+
+
+
+esqlc：
+/home/hyliu/kingbase/bin/esqlc -o test3.c   -I /home/hyliu/kingbase/include test3.pc
+gcc -g -o test3  test3.c  -lesql -lkci -lectypes  -L /home/hyliu/kingbase/bin -I /home/hyliu/kingbase/include
+
+
+Red Hat 4.1.2-55
+
+set QT_PLUGIN_PATH=%cd%/plugins/
+
+设置SUPERUSER man：
+postgresql-9.4.0.tar.gz
+createuser --superuser root -h 127.0.0.1
+createdb -O root TEST -h 127.0.0.1  创建数据库TEST
+./psql -U root -d TEST -h 127.0.0.1 -p 5432  root超级管理员登陆到TEST数据库
+
+root用户增加密码：
+TEST=# \password root
+Enter new password: 
+Enter it again: 
+TEST=# 
+TEST=# 
+TEST=# \q
+
+修改vi pg_hba.conf 文件：
+注释其他的。增加一行：
+host    all         all         0.0.0.0/0             md5
+再次登陆数据库：提示需要输入密码
+[postgresql@bogon bin]$ ./psql -U root -d TEST -h 127.0.0.1 -p 5432 
+
+Password for user root: mobile
+
+[
+命令行异常处理：
+-bash-4.2$ 
+cp /etc/.bash*   /home/用户目录下
+su - 用户目录下
+显示正常
+]
+
+程序内存检测：
+valgrind --tool=memcheck --leak-check=full ./main
+
+initdb确实是调用kingbase了
+所以怀疑是kingbase有些库没找到
+./kingbase -v
+
+
+
+下面是按功能划分的命令名称。
+
+监控总体带宽使用――nload、bmon、slurm、bwm-ng、cbm、speedometer和netload
+监控总体带宽使用（批量式输出）――vnstat、ifstat、dstat和collectl
+每个套接字连接的带宽使用――iftop、iptraf、tcptrack、pktstat、netwatch和trafshow
+每个进程的带宽使用――nethogs
+
+
+
+
+[hyliu@localhost ~]$ cat /etc/sysconfig/network-scripts/ifcfg-eth0 
+# Realtek Semiconductor Co., Ltd. RTL8111/8168B PCI Express Gigabit Ethernet controller
+DEVICE=eth0
+BOOTPROTO=none
+IPADDR=192.168.6.78
+NETMASK=255.255.240.0
+HWADDR=90:E6:BA:60:61:36
+ONBOOT=yes
+
+
+
+终端设置颜色：
+cat /etc/bashrc
+文件末尾添加：PS1='[\[\e[32;40m\]\u@\h \W]$ '
+
+
+设置网络接口：
+etc/sysconfig/network-scripts/ifcfg-eth0
+BOOTPROTO=static设置静态IP地址
+/etc/udev/rules.d/70-persistent-net.rules文件删除设置重新设置mac地址
+
+
+调试AutomatedTest 测试用例
+我一般都是
+while((1)); do gdb -p `pidof AutomatedTest`; sleep 0.1; done;
+我一般都是
+while((1)); do gdb -p `pidof AutomatedTest`;  done;
+
+while((1)); do /sbin/gdb -p `/sbin/pidof AutomatedTest`;  done;
+
+
+test 
+test123456:
+\\192.168.0.93\temp 
+\\192.168.0.93\software
+
+rdc
+rdc123456:
+\\192.168.4.21
+
+export LC_ALL=zh_CN.GBK
+export LD_LIBRARY_PATH=../../../dci/.libs:$LD_LIBRARY_PATH
+
+DCI接口设置sys_service.conf文件的路径：
+export KINGBASE_CONFDIR=/home/hyliu
+export KINGBASE_CONFDIR=/home/hyliu
+
+
+kingbase 编译参数：
+./configure --with-zlib --prefix=/home/lluo/kingbase.tmp/release/linux/kingbase --enable-nls --enable-integer-datetimes --with-openssl --with-ldap --with-krb5 --with-traenc --with-ceraut --with-columnstorage --enable-splitmerge --enable-debug --enable-cassert --enable-pack-noalign
+
+./dailybuild_chmod.sh 先转化编码
+./dailybuild.sh   -m debug 
+./dailybuild.sh  -m realse
+从生成的文件 head config.log 中获取configure编译参数
+然后编译
+
+找kingbase版本：
+\\192.168.4.21\Software\BaseSoft\KingbaseES\7.1.2\7.1.2.0241-release for 500(Javatools_712)\linux-i686
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————	
+库路径的设置：：：：
+readelf -s  libtransportencrypt.so  | grep initencrypttransport*
+readelf -s  libtransportencrypt.so  
+
+../config/encrypt_service.conf
+[TRAENC]
+library_name = 'libtransportencrypt.so'
+
+Symbol table '.dynsym' contains 23 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+    14: 00000850   311 FUNC    GLOBAL DEFAULT   10 InitEncryptTransport
+
+	if (NULL == (decrypttransport = (DECRYPTTRANSPORT) pg_dlsym(kdbtransportcryptodll, 
+		"DecryptTransport")))	
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————	
+	
+oracle日志信息：
+查看视图表查看日志： v$sqlarea
+http://cuichang.blog.hexun.com/31475039_d.html
+
+select * from v$sqlarea t where t.PARSING_SCHEMA_NAME in ('HYLIU') order by t.LAST_ACTIVE_TIME desc
+
+select * from v$sqlarea t order by t.LAST_ACTIVE_TIME desc;
+
+select * from v$session t order by t.LAST_ACTIVE_TIME desc;
+
+select 语句需要有一个目的存储位置，不然的话，在plsql里，结果集远处存放，就会报错
+declare
+	x number;
+begin
+	select 123 into x from dual;
+end;
+这样的可以
+
+-------------------------------------
+
+oracle乱码处理：
+oracle查看字符集：
+export NLS_LANG="SIMPLIFIED Chinese_CHINA.ZHS16GBK"
+export LC_ALL=zh_CN.GBK;
+然后把终端的显示编码也调整成GBK
+再通过sqlplus进就好了
+
+
+
+-------------------------------------------------------------------
+scott/tiger@192.168.6.207:1521/orcl
+
+
+连接串oracle：text *cstring = (text *)"//192.168.6.207:1521/orcl";	
+
+lsnrctl stop
+lsnrctl start
+
+vi listener.ora : 
+SID_LIST_LISTENER =
+  (SID_LIST =
+    (SID_DESC =
+      (SID_NAME = orcl)
+      (ORACLE_HOME = /opt/oracle/product/OraHome)
+#      (PROGRAM = extproc) 
+    )
+#
+# (SID_DESC =
+#      (GLOBAL_DBNAME = orcl)
+#      (ORACLE_HOME = /opt/oracle/product/OraHome)
+#      (SID_NAME = orcl)
+#    )
+)
+
+LISTENER =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.207)(PORT = 1521))
+  )
+
+ADR_BASE_LISTENER = /opt/oracle
+
+export LD_LIBRARY_PATH=/opt/oracle/product/OraHome/lib:$LD_LIBRARY_PATH
+export ORACLE_BASE=/opt/oracle
+export ORACLE_SID=orcl
+export ORACLE_HOME=/opt/oracle/product/OraHome
+export PATH=$ORACLE_HOME/bin:$PATH
+
+
+/home/oracle/app/oracle/product/12.1.0/dbhome_1/bin/lsnrctl start
+/home/oracle/app/oracle/product/12.1.0/dbhome_1/bin/dbstarta
+
+[root@X2 ~]$ ifconfig eth0 | grep "inet addr"
+          inet addr:192.168.8.176  Bcast:192.168.15.255  Mask:255.255.240.0
+[root@X2 ~]$ cat /etc/hosts
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1		localhost localhost.localdomain localhost
+::1		localhost6.localdomain6 localhost6
+192.168.8.176 X2
+
+
+
+[oracle@localhost ~]$ sqlplus / as sysdba
+SQL> shutdown immediate 
+SQL> startup  
+-------------------------------------------------------------------
+alter user CZHANG identified by CZHANG;
+
+
+lsnrctl stop/start
+创建orcl远程连接：
+[oracle@localhost admin]$ vi listener.ora 
+[oracle@localhost admin]$ pwd
+/home/oracle/app/oracle/product/11.2.0/dbhome_1/network/admin
+
+lsnrctl stauts
+tnsping orcl //ping通orale
+
+Oracle:
+192.168.6.207
+/opt/oracle/product/OraHome/lib/libclntsh.so
+locate libclntsh.so
+sqlplus hyliu/hyliu@orcl
+sqlplus HYLIU/HYLIU@orcl
+sqlplus CZHANG/CZHANG@orcl
+
+机器用户名和密码是oracle/oracle
+使用sysdba角色，加了一个用户
+-------------------------------------------------------------------
+
+create user HYLIU identified by HYLIU
+grant connect,resource to HYLIU;
+GRANT execute ON DBMS_LOCK TO HYLIU;
+
+chgrp(转变文件所属用户组)chgrp(转变文件所属用户组)
+chgrp 用户组 文件名
+chgrp -R user smb.conf
+
+chown(转变文件拥有者)
+chown 用户名：用户组：文件/目次
+
+1、建用户：
+adduser phpq                             //新建phpq用户
+passwd phpq                               //给phpq用户设置密码
+2、建工作组
+groupadd test                          //新建test工作组
+3、新建用户同时增加工作组
+useradd -g test phpq                      //新建phpq用户并增加到test工作组
+注：：-g 所属组 -d 家目录 -s 所用的SHELL
+--------------------------------------------------------------------------------------------------------
+
+ctags -R *
+cscope -Rbq
+
+\\192.168.4.21
+\\192.168.11.43
+
+\set SQLTERM / 要大写字母
+
+kodbc_api30.lds
+-------------------------------
+
+[hyliu@host odbc]$ odbc_config --odbcinstini
+/usr/local/etc/odbcinst.ini
+[hyliu@host odbc]$ odbc_config --odbcini
+/usr/local/etc/odbc.ini
+[hyliu@host odbc]$ odbc_config --prefix
+/usr/local
+[hyliu@host odbc]$ odbc_config --libs
+-L/usr/local/lib -lodbc
+[hyliu@host odbc]$ 
+
+------------------------------------------------
+
+[hyliu@host odbc]$ odbcinst -j
+unixODBC 2.3.2
+DRIVERS............: /usr/local/etc/odbcinst.ini
+SYSTEM DATA SOURCES: /usr/local/etc/odbc.ini
+FILE DATA SOURCES..: /usr/local/etc/ODBCDataSources
+USER DATA SOURCES..: /home/hyliu/.odbc.ini
+SQLULEN Size.......: 4
+SQLLEN Size........: 4
+SQLSETPOSIROW Size.: 2
+
+在unixodbc2.3版本及以上，可以在连接串里，直接到Driver={/home/..../kdbodbc7.so}
+不用注册到odbcinst.ini里也可以使用
+
+
+
+安装程序检查依赖库不是根据特定路径下是否有该文件的方式检查，而是执行 /sbin/ldconfig -p | grep -w $so_file 命令去检查依赖库文件是否已加载到系统缓存中。
+该命令一般会在 /lib、/usr/lib 和 /etc/ld.so.conf 内所列的目录下查找动态链接然后创建链接和缓存文件，缓存文件默认是 /etc/ld.so.cache。
+该命令在系统启动时只自动执行一次，运行时新加库，需要手动执行该命令，用法详见 man 手册吧。
+另：国电系统做过定制，需要检查 ldconfig 命令是否做过定制或只是其他命令的软链接等情况。
+
+sysctl -w kernel.sem="32000 32000 32000 32000"
+——————————————————————————————————————————————————————————————————————————————————————————————————————
+WIFI pwd：
+
+rdjc1015 
+rdjc1108
+
+——————————————————————————————————————————————————————————————————————————————————————————————————————
+regsvr32 F:\Src_Insight3\connectptr_debug\ODBC_FOR_ALIYUN3\bin\kdbole7.dll
+也是修改的
+regsvr32  F:\Src_Insight3\oledb\zhongfaX\ODBC_FOR_ALIYUN\bin\kdbole7.dll
+
+oledb:
+regsvr32 F:\Src_Insight3\oledb\zhongfaX\ODBC_FOR_ALIYUN\bin\kdbole7.dll
+
+修改后的：
+regsvr32  F:\Src_Insight3\oledb\test_pro\ODBC_FOR_ALIYUN2\bin\kdbole7.dll
+    
+regsvr32 E:\Src_Insight3\win_odbc-for-aliyun\odbc-for-aliyun\bin\kdbole7.dll  
+——————————————————————————————————————————————————————————————————————————————————————————————————————
+
+set substitute-path /home/hyliu/516/lhy/src/dci   /home/hyliu/516/src/dci
+
+ulimit -s unlimited 设置程序堆栈大小为不限大
+
+export LC_ALL=zh_CN.GBK
+export LD_LIBRARY_PATH=../../../dci/.libs:$LD_LIBRARY_PATH
+export KINGBASE_CONFDIR=/home/hyliu/kingbaseES/config
+
+./initdb -USYSTEM -WMANAGER --ssousername=SYSSSO --ssopassword=LABEL --saousername=SYSSAO --saopassword=AUDIT --database=TEST -D ../data 
+ ./kingbase -D ../data --log_statement=all
+ 
+
+ strings libclntsh.so  | grep -e '[0-9]\.[0-9]\.[0-9]\{4\}'
+    上面的比较难记，如果确定使用的是712的版本，可以使用下面的简化后的命令：
+        strings libclntsh.so  | grep '7.1.2'
+    如果现场有多个libclnt.so，不确定应用使用的哪个，可以在启动应用的终端环境下，ldd一下应用的名字，看看具体的依赖关系。
+    如果是windows环境，可以直接右键-》属性-》版本信息 就可以看见。
+    辛苦大家了。
+	
+
+查看接口的版本
+strings libclntsh_.so | grep 7.1.2
+
+
+
+./isql -h 192.168.6.78 -USYSTEM -WMANAGER -dTEST 
+
+获取版本的
+\\192.168.4.21\KingbaseES\7.1.2
+
+全日志：
+--log_statement=all
+加到data目录下的kingbase.conf配置文件中
+kill -1 kingbase_pid
+
+
+
+
+./kingbase -D ../data --log_statement=all
+ 
+ 
+sh ./configure -K ~/Kingbase/ --use-initkdb=yes -m debug
+./kingbase -D ../data --log_statement=all > kingbase.log 2>&1 &
+
+
+
+类型转换：
+ select '05:05:06.789-08'::timetz - '04:05:06.789-04'::timetz;
+ 
+while ((1)); do gdb -p `/sbin/pidof DciTest`; sleep 1; done;
+
+while ((1)); do `pidof DciTest` | xargs -I {}  gdb -p {} ; sleep 1; done;
+
+while ((1)); do `ps -ef | grep "DciTest"  | grep -v grep | awk '{print $2}' | xargs -I {}  gdb -p {}`; sleep 1; done;
+
+[hyliu@localhost dci]$ free -m
+             total       used       free     shared    buffers     cached
+Mem:          1480       1434         45          0         75       1038
+-/+ buffers/cache:        320       1159
+Swap:            0          0          0
+
+
+grep fetched expected.txt  | wc -l
+diff -wC3 ../../log/DCITest/result.txt expected.txt 
+
+ulimit -c unlimited
+ulimit -s unlimited
+make test --->  gdb ./DciTest core.12381 
+
+locate kingbase
+
+
+
+for:
+192.168.6.81
+Oracle服务器账号： 192.168.6.81 HYLIU/HYLIU(数据库账户），
+操作系统账号oracle/oracle
+sqlplus HYLIU/HYLIU
+sqlplus  oracle/oracle
+一般如果有兼容性要求的话，可以用这个机器测试
+
+
+
+
+insert into T_INTERVAL(a) select * from T_INTERVAL;
+insert into  T_INTERVAL values('2010-10-18','10:10:11','2008-08-09 08:08:08','2008-08-09 08:08:08','-01-02','-01 02:03:04.500000');
+
+for:
+服务器的账号：192.168.6.78 hyliu/hyliu
+你可以在4.21上找一个kingbase的build包，放到6.78上试试，学着使用一下build版
+启动好通过isql可以连接一下
+放上去后，解压完，进到bin目录
+export LD_LIBRARY_PATH=`pwd`/../lib:$LD_LIBRARY_PATH
+
+export LD_LIBRARY_PATH=`pwd`/../lib:/usr/local/lib
+export LD_LIBRARY_PATH=`pwd`/../lib:/usr/local/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=`pwd`/../lib:/usr/local/lib:$LD_LIBRARY_PATH
+
+不是安装包，就是我们编译完的tar.bz2包
+\\192.168.4.21\Software\BaseSoft\KingbaseES\7.1.2\7.1.2.0445-release-61s(kingbase-odbcfor GT5XX)\linux-x86_64
+
+
+设置完环境变量后，初始化数据库：
+./initdb -USYSTEM -WMANAGER --ssousername=SYSSSO --ssopassword=LABEL --saousername=SYSSAO --saopassword=AUDIT --database=TEST -D ../data 
+
+
+启动命令：
+./kingbase -D ../data
+连接命令：
+./isql -USYSTEM -WMANAGER -dTEST 
+
+./isql -USYSTEM -WMANAGER -dTEST -E 可以查看编辑命令
+
+
+ln -sf /usr/local/lib/libldap-2.3.so.0 ./libldap-2.3.so.0
+ln -sf /usr/local/lib/libkrb5support.so.0  ./libkrb5support.so.0
+ln -sf /usr/local/lib/libkeyutils.so.1  ./libkeyutils.so.1
+ln -sf /usr/local/lib/liblber-2.3.so.0  ./liblber-2.3.so.0
+ln -sf /usr/local/lib/libsasl2.so.2  ./libsasl2.so.2
+ln -sf /usr/local/lib/libselinux.so.1  ./libselinux.so.1
+ln -sf /usr/local/lib/libsepol.so.1  ./libsepol.so.1
+ln -sf /usr/local/lib/libodbc.so.1  ./libodbc.so.1
+
+
+下载代码的命令：
+hff download -h 192.168.5.55 -proj KingbaseESV7.1.2 -l RELEASE_7.1.2.0425_JDBC -d E:\proj\JDBC -nl -u kdb -pwd Gong4Xiang3
+hff download -h 192.168.5.55 -proj KingbaseESV7.1.2 -l RELEASE_7.1.2.0425_JDBC -d F:\Kingbase_Pro -nl -u hyliu -pwd hyliu
+
+
+
+数据库初始化失败，则需要建立如下动态库的软链接文件
+ln -sf /usr/lib/liblber-2.4.so.2 /usr/lib/liblber-2.3.so.0
+
+
+oracle手册
+\\192.168.4.21\Software\BaseSoft\DBMS\Oracle
+
+
+格式化显示：
+SQL> set lines 10240
+SQL>  select * from dba_data_files;
+
+FILE_NAME																								      FILE_ID TABLESPACE_NAME			 BYTES	   BLOCKS STATUS    RELATIVE_FNO AUT   MAXBYTES  MAXBLOCKS INCREMENT_BY USER_BYTES USER_BLOCKS ONLINE_
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------- ------------------------------ ---------- ---------- --------- ------------ --- ---------- ---------- ------------ ---------- ----------- -------
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/users01.dbf																	    4 USERS			    2.3118E+10	  2822080 AVAILABLE	       4 YES 3.4360E+10    4194302	    160 2.3117E+10     2821952 ONLINE
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/undotbs01.dbf																	    3 UNDOTBS1			    4923064320	   600960 AVAILABLE	       3 YES 3.4360E+10    4194302	    640 4922015744	600832 ONLINE
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/sysaux01.dbf																	    2 SYSAUX			     859832320	   104960 AVAILABLE	       2 YES 3.4360E+10    4194302	   1280  858783744	104832 ONLINE
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/system01.dbf																	    1 SYSTEM			     744488960	    90880 AVAILABLE	       1 YES 3.4360E+10    4194302	   1280  743440384	 90752 SYSTEM
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/example01.dbf																	    5 EXAMPLE			     104857600	    12800 AVAILABLE	       5 YES 3.4360E+10    4194302	     80  103809024	 12672 ONLINE
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/perfstat.dbf																	    6 PERFSTAT			     524288000	    64000 AVAILABLE	       6 NO	      0 	 0	      0  523239424	 63872 ONLINE
+/home/oracle/installed_oracle_app/oracle/oradata/TEST/tb_test01.dbf																	    7 TB_TEST			    5242880000	   640000 AVAILABLE	       7 YES 3.4360E+10    4194302	   1280 5241831424	639872 ONLINE
+/home/oracle/installed_oracle_app/oracle/product/11.2.0/dbhome_1/dbs/D:oracleuser_fvdata.dbf														    8 USER_DATA			      52428800	     6400 AVAILABLE	       8 YES 2.1475E+10    2621440	   6400   51380224	  6272 ONLINE
+
+
+SQL>  select * from dba_free_space where rownum < 10;   -- rownum=1；
+
+TABLESPACE_NAME 		  FILE_ID   BLOCK_ID	  BYTES     BLOCKS RELATIVE_FNO
+------------------------------ ---------- ---------- ---------- ---------- ------------
+SYSTEM					1      89616   10354688       1264	      1
+SYSAUX					2      96768	1048576        128	      2
+SYSAUX					2      97032	 131072 	16	      2
+SYSAUX					2      98048	 131072 	16	      2
+SYSAUX					2      98072	 917504        112	      2
+SYSAUX					2      98192	 917504        112	      2
+SYSAUX					2      98432	 262144 	32	      2
+SYSAUX					2      99080	 983040        120	      2
+SYSAUX					2     101888   25165824       3072	      2
+
+
+各位，
+ 
+文件服务器（IP:192.168.4.21）上新增VM10安装包，路径如下：
+\\192.168.4.21\Software\虚拟机\vm10
+ 
+特别感谢系统支持部罗乐提供以上软件。
+ 
+ 
+ 
+192.168.4.21
+研发中心
+？
+账户名：rdc
+密码：rdc123456
+
+\\192.168.11.43\knowledge\金仓工作指南\开发工作指南
+
+
+
+提交代码工作：
+make check 做测试用例
+F:\Kingbase_Pro\src\test\regress\sql
+
+F:\Kingbase_Pro\Change_Log.txt
+
+make check 
+make icase_check
+/home3/hyliu/Kingbase_Pro/src/test/regress/results 是生成结果
+
+
+
+问题：
+log文件打印的还是：FATAL:  out of memory at memory allocation
+
+shared_buffers=200MB
+maintenance_work_mem = 1MB
+max_connections = 128
+
+
+
+项目代码管理工具：培训
+\\192.168.4.21\Software\Firefly 4.1 build 632\Training\Firefly普通用户培训PPT
+
+接口代码规范:
+http://192.168.4.28/wiki/%E6%8E%A5%E5%8F%A3%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83
+
+
+看函数定义：\df lo_create_temp
+查看表定义：\d sys_proc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

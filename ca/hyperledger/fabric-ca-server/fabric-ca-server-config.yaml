@@ -277,8 +277,8 @@ bccsp:
 cacount:
 
 cafiles:
-#    - ca/ca1/fabric-ca-server-config.yaml
-#    - ca/ca2/fabric-ca-server-config.yaml
+    - ca/ca1/fabric-ca-server-config.yaml
+    - ca/ca2/fabric-ca-server-config.yaml
 
 #############################################################################
 # Intermediate CA section
