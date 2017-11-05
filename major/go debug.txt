@@ -43,3 +43,6 @@ help获取帮助
 dlv
 调试：
 
+gdlv 是图形运行模式
+ gdlv run  main.go generate --config=./crypto-config.yaml
+是带参数运行
