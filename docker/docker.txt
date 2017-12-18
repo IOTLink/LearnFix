@@ -33,5 +33,46 @@ b30d5cc89350        net_byfn             bridge              local
 docker stop  fa7a8ed86011
 
 
+配置服务于发现：overlay 网络模式
+http://www.maiziedu.com/wiki/cloud/overlay/
+
+在一台主机A上启动：
+docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h consul progrium/consul -server -bootstrap -ui-dir /ui
+
+可以通过网址：
+http://10.26.9.28:8500/ui/#/dc1/services
+查看服务
+
+主机B上：
+设置：
+vi /etc/systemd/system/multi-user.target.wants/docker.service +12
+ExecStart=/usr/bin/dockerd -H fd://  -H unix:///var/run/docker.sock  -H tcp://0.0.0.0:2376  --cluster-store=consul://10.26.9.28:8500 --cluster-advertise=eth0:2376 --insecure-registry=0.0.0.0/0
+
+如果没有起作用，则修改配置：
+
+vi /etc/default/docker
+DOCKER_OPTS="-H unix:///var/run/docker.sock  -H tcp://0.0.0.0:2376  --cluster-store=consul://10.26.9.28:8500 --cluster-advertise=eth0:2376 --insecure-registry=0.0.0.0/0"
+~                                                                                                                                                                                              
+
+ubuntu下重启服务：
+liuhy ~ # /etc/init.d/docker restart 
+ * Docker is managed via upstart, try using service docker 
+
+liuhy ~ # service docker restart
+docker stop/waiting
+docker start/running, process 4136
+
+
+必须有三台的dockerd的服务器上测试：
+http://www.maiziedu.com/wiki/cloud/overlay/
+http://blog.csdn.net/ztsinghua/article/details/51545561
+
+
+
+
+
+
+
+
 
 
