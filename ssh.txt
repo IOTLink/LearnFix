@@ -16,6 +16,11 @@ anaconda-ks.cfg  id_rsa.pub
 
 
 
+linux 传送文件：
+ rsync -avzP ./docker-images-test.tar.tgz  root@10.144.128.54:/root
+
+
+
 
 
 
