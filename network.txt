@@ -2,3 +2,7 @@ nmap -v -sS -PE -n --min-hostgroup 1024 --min-parallelism 1024 -oX nmap_output.x
 
 
 网段扫描技术
+
+
+
+

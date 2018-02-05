@@ -1,0 +1,22 @@
+我本地执行：
+liuhy@liuhy ~/.ssh $ rsync -avzP ./id_rsa.pub root@10.144.128.54:/root
+
+
+将这个文件id_rsa.pub传递到远程服务器：
+[root@localhost ~]# ls
+anaconda-ks.cfg  id_rsa.pub
+
+
+
+
+拷贝文件到：id_rsa.pub >> ~/.ssh/authorized_keys 
+[root@localhost ~]# ls
+anaconda-ks.cfg  id_rsa.pub
+[root@localhost ~]# cat id_rsa.pub >> ~/.ssh/authorized_keys 
+
+
+
+
+
+
+
