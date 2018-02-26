@@ -46,3 +46,41 @@ liuhy@LAPTOP-BS9R225U MINGW64 ~/Desktop/LearnFix (master)
 $ git branch
   dev
 * master
+
+1：
+git 禁止上传文件：写入当前目录 .gitignore文件中
+例如：
+[root@bogon restfulserver]# cat gitignore 
+*/.DS_Store
+.DS_Store
+env/*   说明，禁止上传env目录下的所有文件
+.idea 禁止目录
+main/server
+main/config/crypto-config/
+main/mychannel/
+main/msp/
+main/enroll_user_org*
+env/fabric-samples/first-network/crypto-config
+env/fabric-samples/first-network/channel-artifacts
+
+2：配置调试服务提下载代码：
+.git/config
+
+[root@bogon .git]# cat config 
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = http://gitlab.sinochem.cloud/blockchain/restfulserver.git 更新代码的路径，http协议
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+
+	直接服务器运行
+	git pull
+    可以从库上跟新最新的代码
+	
+
