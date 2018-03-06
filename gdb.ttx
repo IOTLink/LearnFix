@@ -1,0 +1,5 @@
+tui
+gdb 
+ctrl+x+a
+//tty
+tty /dev/"tty-id"
