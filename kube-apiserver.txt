@@ -1,0 +1,79 @@
+
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ ll
+total 8
+drwxr-xr-x  2 root root 4096 Mar 24 14:39 ./
+drwxr-xr-x 19 root root 4096 Mar 24 11:58 ../
+lrwxrwxrwx  1 root root   35 Mar 19 17:05 anacron.service -> /lib/systemd/system/anacron.service
+lrwxrwxrwx  1 root root   40 Mar 19 17:05 avahi-daemon.service -> /lib/systemd/system/avahi-daemon.service
+lrwxrwxrwx  1 root root   42 Mar 19 17:05 binfmt-support.service -> /lib/systemd/system/binfmt-support.service
+lrwxrwxrwx  1 root root   37 Mar 19 17:05 cgmanager.service -> /lib/systemd/system/cgmanager.service
+lrwxrwxrwx  1 root root   35 Mar 19 17:05 cgproxy.service -> /lib/systemd/system/cgproxy.service
+lrwxrwxrwx  1 root root   32 Mar 19 17:05 cron.service -> /lib/systemd/system/cron.service
+lrwxrwxrwx  1 root root   40 Mar 19 17:05 cups-browsed.service -> /lib/systemd/system/cups-browsed.service
+lrwxrwxrwx  1 root root   29 Mar 19 17:05 cups.path -> /lib/systemd/system/cups.path
+lrwxrwxrwx  1 root root   37 Mar 19 17:05 dns-clean.service -> /lib/systemd/system/dns-clean.service
+lrwxrwxrwx  1 root root   34 Mar 24 10:26 docker.service -> /lib/systemd/system/docker.service
+lrwxrwxrwx  1 root root   32 Mar 24 11:58 etcd.service -> /lib/systemd/system/etcd.service
+lrwxrwxrwx  1 root root   35 Mar 19 17:05 hddtemp.service -> /etc/systemd/system/hddtemp.service
+lrwxrwxrwx  1 root root   38 Mar 19 17:05 lm-sensors.service -> /lib/systemd/system/lm-sensors.service
+lrwxrwxrwx  1 root root   38 Mar 19 17:05 mintsystem.service -> /lib/systemd/system/mintsystem.service
+lrwxrwxrwx  1 root root   40 Mar 19 17:05 ModemManager.service -> /lib/systemd/system/ModemManager.service
+lrwxrwxrwx  1 root root   38 Mar 19 17:05 networking.service -> /lib/systemd/system/networking.service
+lrwxrwxrwx  1 root root   42 Mar 19 17:05 NetworkManager.service -> /lib/systemd/system/NetworkManager.service
+lrwxrwxrwx  1 root root   31 Mar 19 17:05 ntp.service -> /etc/systemd/system/ntp.service
+lrwxrwxrwx  1 root root   35 Mar 19 17:05 openvpn.service -> /lib/systemd/system/openvpn.service
+lrwxrwxrwx  1 root root   36 Mar 19 17:05 pppd-dns.service -> /lib/systemd/system/pppd-dns.service
+lrwxrwxrwx  1 root root   36 Mar 19 17:05 remote-fs.target -> /lib/systemd/system/remote-fs.target
+lrwxrwxrwx  1 root root   35 Mar 19 17:05 rsyslog.service -> /lib/systemd/system/rsyslog.service
+lrwxrwxrwx  1 root root   31 Mar 24 09:53 ssh.service -> /lib/systemd/system/ssh.service
+lrwxrwxrwx  1 root root   36 Mar 19 17:05 thermald.service -> /lib/systemd/system/thermald.service
+lrwxrwxrwx  1 root root   31 Mar 19 17:05 ufw.service -> /lib/systemd/system/ufw.service
+
+
+————————————————————————————————————————————————————————
+https://blog.csdn.net/qq_34463875/article/details/71425686
+
+
+建立/lib/systemd/system/kube-apiserver.service 
+
+写入：
+[Unit]
+Description=Kubernetes API Service
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+After=etcd.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/apiserver
+ExecStart=/usr/bin/kube-apiserver \
+	    $KUBE_LOGTOSTDERR \
+	    $KUBE_LOG_LEVEL \
+	    $KUBE_ETCD_SERVERS \
+	    $KUBE_API_ADDRESS \
+	    $KUBE_API_PORT \
+	    $KUBELET_PORT \
+	    $KUBE_ALLOW_PRIV \
+	    $KUBE_SERVICE_ADDRESSES \
+	    $KUBE_ADMISSION_CONTROL \
+	    $KUBE_API_ARGS
+Restart=on-failure
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
+
+在/etc/systemd/system/multi-user.target.wants  目录建立软连接：
+sudo ln -sf /lib/systemd/system/kube-apiserver.service  kube-apiserver.service
+
+
+$ systemctl daemon-reload
+$ systemctl enable kube-apiserver
+$ systemctl start kube-apiserver
+$ systemctl status kube-apiserver
+
+
+
+

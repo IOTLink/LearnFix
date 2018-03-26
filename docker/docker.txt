@@ -95,6 +95,72 @@ docker rmi $(docker images -q)
 
 
 
+______________________________
+
+vi /etc/default/docker  --- DOCKER_OPTS="-H unix:///var/run/docker.sock"
+
+https://blog.csdn.net/sch0120/article/details/53160885
+
+sudo mkdir -p /etc/systemd/system/docker.service.d
+schen@scvmu01:~$ sudo vi /etc/systemd/system/docker.service.d/Using_Environment_File.conf
+[Service]
+EnvironmentFile=-/etc/default/docker
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// $DOCKER_OPTS
+
+————————————————————————————————————————————————————————————————————————
+添加 -H fd:// --selinux-enabled=false --live-restore -H unix:///var/run/docker.sock --log-driver=journald 到配置文件/etc/default/docker中 重启docker服务：
+
+schen@scvmu01:~$ sudo systemctl daemon-reload
+schen@scvmu01:~$ sudo service docker restart
+schen@scvmu01:~$ ps -ef | grep docker
+root      4287     1  0 21:52 ?        00:00:02 dockerd -H fd:// --label name=docker_server_1
+root      4296  4287  0 21:52 ?        00:00:00 docker-containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --shim docker-containerd-shim --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --runtime docker-runc
+schen     4395  2377  0 22:07 pts/1    00:00:00 grep --color=auto docker
+
+
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ sudo systemctl daemon-reload
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ sudo systemctl restart  docker 
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ ps -ef | grep docker 
+root       5577      1  2 14:39 ?        00:00:00 dockerd -H fd:// --selinux-enabled=false --live-restore -H unix:///var/run/docker.sock --log-driver=journald
+root       5586   5577  0 14:39 ?        00:00:00 containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docke/libcontainerd/containerd --shim containerd-shim --runtime runc
+liuhy      5686   4025  0 14:39 pts/3    00:00:00 grep --color=auto docker
+
+
+————————————————————————————————————————————————————————————————————————————————————
+
+baas配置：
+docker.service：
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd --selinux-enabled=false --live-restore -H unix:///var/run/docker.sock --dns=10.244.0.2 --dns=10.144.128.48 --dns-search default.svc.cluster.local --dns-search svc.cluster.local --dns-search cluster.local --dns-opt ndots:5 --dns-opt timeout:2 --dns-opt attempts:2 --log-driver=journald
+ExecReload=/bin/kill -s HUP $MAINPID
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this version.
+#TasksMax=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+
 
 
 

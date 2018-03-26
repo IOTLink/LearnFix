@@ -163,5 +163,15 @@ systemctl unmask docker.service
 systemctl unmask docker.socket
 systemctl start docker.service
 
+________________________________________________
+docker permission denied :
+
+
+sudo groupadd docker
+sudo gpasswd -a liuhy docker
+sudo service docker restart
+切换当前会话到新 group 或者重启 X 会话
+
+newgrp - docker
 
 
