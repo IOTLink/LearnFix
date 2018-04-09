@@ -160,6 +160,12 @@ KillMode=process
 [Install]
 WantedBy=multi-user.target
 
+______________________________
+
+
+sudo usermod -aG docker "liuhy"
+newgrp docker
+
 
 
 
