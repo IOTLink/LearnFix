@@ -1,0 +1,170 @@
+查看docker桥接地址信息：
+ docker network inspect bridge
+
+查看docker容器内部的地址：
+ docker exec -it ca_peerOrg1 ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+20: eth0@if21: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:ac:13:00:08 brd ff:ff:ff:ff:ff:ff
+    inet 172.19.0.8/16 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:acff:fe13:8/64 scope link 
+       valid_lft forever preferred_lft forever
+
+
+
+查看docker本地现有的网络：
+
+docker network ls
+NETWORK ID          NAME                 DRIVER              SCOPE
+7812e4264084        bridge               bridge              local               
+4e0a6258e44d        host                 host                local               
+7e51b14ecd03        linuxamd64_default   bridge              local               
+b30d5cc89350        net_byfn             bridge              local               
+520d0249f11b        none                 null                local   
+
+
+关闭一个已经启动的docker容器：
+docker stop  fa7a8ed86011
+
+
+配置服务于发现：overlay 网络模式
+http://www.maiziedu.com/wiki/cloud/overlay/
+
+在一台主机A上启动：
+docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h consul progrium/consul -server -bootstrap -ui-dir /ui
+
+可以通过网址：
+http://10.26.9.28:8500/ui/#/dc1/services
+查看服务
+
+主机B上：
+设置：
+vi /etc/systemd/system/multi-user.target.wants/docker.service +12
+ExecStart=/usr/bin/dockerd -H fd://  -H unix:///var/run/docker.sock  -H tcp://0.0.0.0:2376  --cluster-store=consul://10.26.9.28:8500 --cluster-advertise=eth0:2376 --insecure-registry=0.0.0.0/0
+
+如果没有起作用，则修改配置：
+
+vi /etc/default/docker
+DOCKER_OPTS="-H unix:///var/run/docker.sock  -H tcp://0.0.0.0:2376  --cluster-store=consul://10.26.9.28:8500 --cluster-advertise=eth0:2376 --insecure-registry=0.0.0.0/0"
+~                                                                                                                                                                                              
+
+ubuntu下重启服务：
+liuhy ~ # /etc/init.d/docker restart 
+ * Docker is managed via upstart, try using service docker 
+
+liuhy ~ # service docker restart
+docker stop/waiting
+docker start/running, process 4136
+
+
+必须有三台的dockerd的服务器上测试：
+http://www.maiziedu.com/wiki/cloud/overlay/
+http://blog.csdn.net/ztsinghua/article/details/51545561
+
+
+
+2.停止所有的container，这样才能够删除其中的images：
+
+docker stop $(docker ps -a -q)
+
+如果想要删除所有container的话再加一个指令：
+
+docker rm $(docker ps -a -q)
+
+3.查看当前有些什么images
+
+docker images
+
+4.删除images，通过image的id来指定删除谁
+
+docker rmi <image id>
+
+想要删除untagged images，也就是那些id为<None>的image的话可以用
+
+docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+
+要删除全部image的话
+
+docker rmi $(docker images -q)
+
+
+
+______________________________
+
+vi /etc/default/docker  --- DOCKER_OPTS="-H unix:///var/run/docker.sock"
+
+https://blog.csdn.net/sch0120/article/details/53160885
+
+sudo mkdir -p /etc/systemd/system/docker.service.d
+schen@scvmu01:~$ sudo vi /etc/systemd/system/docker.service.d/Using_Environment_File.conf
+[Service]
+EnvironmentFile=-/etc/default/docker
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// $DOCKER_OPTS
+
+————————————————————————————————————————————————————————————————————————
+添加 -H fd:// --selinux-enabled=false --live-restore -H unix:///var/run/docker.sock --log-driver=journald 到配置文件/etc/default/docker中 重启docker服务：
+
+schen@scvmu01:~$ sudo systemctl daemon-reload
+schen@scvmu01:~$ sudo service docker restart
+schen@scvmu01:~$ ps -ef | grep docker
+root      4287     1  0 21:52 ?        00:00:02 dockerd -H fd:// --label name=docker_server_1
+root      4296  4287  0 21:52 ?        00:00:00 docker-containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --shim docker-containerd-shim --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --runtime docker-runc
+schen     4395  2377  0 22:07 pts/1    00:00:00 grep --color=auto docker
+
+
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ sudo systemctl daemon-reload
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ sudo systemctl restart  docker 
+liuhy@liuhy /etc/systemd/system/multi-user.target.wants $ ps -ef | grep docker 
+root       5577      1  2 14:39 ?        00:00:00 dockerd -H fd:// --selinux-enabled=false --live-restore -H unix:///var/run/docker.sock --log-driver=journald
+root       5586   5577  0 14:39 ?        00:00:00 containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docke/libcontainerd/containerd --shim containerd-shim --runtime runc
+liuhy      5686   4025  0 14:39 pts/3    00:00:00 grep --color=auto docker
+
+
+systemctl daemon-reload
+systemctl enable docker
+systemctl start docker
+
+————————————————————————————————————————————————————————————————————————————————————
+
+baas配置：
+docker.service：
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd --selinux-enabled=false --live-restore -H unix:///var/run/docker.sock --dns=10.244.0.2 --dns=10.144.128.48 --dns-search default.svc.cluster.local --dns-search svc.cluster.local --dns-search cluster.local --dns-opt ndots:5 --dns-opt timeout:2 --dns-opt attempts:2 --log-driver=journald
+ExecReload=/bin/kill -s HUP $MAINPID
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this version.
+#TasksMax=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+
